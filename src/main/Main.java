@@ -12,7 +12,7 @@ public class Main {
         JFrame window = new JFrame("Chess Game");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
-//        window.getIconImage(logo.getImage());
+        //window.getIconImage(logo.getImage());
 
         //Add Main.Main.GamePanel to the window
         GamePanel gp = new GamePanel();

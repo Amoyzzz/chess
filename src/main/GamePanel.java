@@ -268,6 +268,7 @@ public class GamePanel extends JPanel implements Runnable{
                 if (!leavesKingInCheck()) {
                     validSquare = true;
                 }
+
             }
         }
     }
@@ -381,6 +382,8 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     private void checkCastling(){
+
+        if ()
 
         if (castlingP != null){
             if (castlingP.col == 0) {
