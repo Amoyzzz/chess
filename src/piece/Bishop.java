@@ -16,6 +16,7 @@ public class Bishop extends Piece{
         }
     }
 
+    @Override
     public boolean canMove(int targetCol, int targetRow){
 
         if (isWithThinBoard(targetCol, targetRow) && isSameSquare(targetCol, targetRow) == false){

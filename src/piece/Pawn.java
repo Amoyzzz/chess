@@ -16,6 +16,7 @@ public class Pawn extends Piece{
             image = getImage("b-pawn");
         }
     }
+    @Override
     public boolean canMove(int targetCol, int targetRow) {
         if (isWithThinBoard(targetCol, targetRow) && isSameSquare(targetCol, targetRow) == false) {
             // Define  the move value based on its color
