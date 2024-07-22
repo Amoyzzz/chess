@@ -3,7 +3,9 @@ package piece;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+
 import javax.imageio.ImageIO;
+
 import main.Board;
 import main.GamePanel;
 import main.Type;
@@ -32,28 +34,28 @@ public class Piece {
             row+=index - 100;
         }  
         this.color = color;
-        x = getX(col);
-        y = getY(row);
+        x = col * Board.SQUARE_SIZE;
+        y = row * Board.SQUARE_SIZE;
         preCol = col;
         preRow = row;
     }
 
     public BufferedImage getImage(String imagePath) {
-        BufferedImage image = null;
+        BufferedImage picture = null;
         try {
-            image = ImageIO.read(Piece.class.getResourceAsStream(imagePath + ".png"));
+            picture = ImageIO.read(Piece.class.getResourceAsStream(imagePath + ".png"));
         }catch (IOException e){
             e.printStackTrace();
         }
-        return image;
+        return picture;
     }
 
     public int getX(int col) {
-        return col* Board.SQUARE_SIZE;
+        return col * Board.SQUARE_SIZE;
     }
 
     public int getY(int row) {
-        return row* Board.SQUARE_SIZE;
+        return row * Board.SQUARE_SIZE;
     }
 
     public int getCol(int x) {return (x + Board.HALF_SQUARE_SIZE)/Board.SQUARE_SIZE;}
@@ -70,9 +72,9 @@ public class Piece {
     }
 
     public int getIndex(){
-        for (int index = 0; index < GamePanel.simPieces.size(); index++) {
-            if(GamePanel.simPieces.get(index) == this){
-                return index;
+        for (int l = 0; l < GamePanel.simPieces.size(); l++) {
+            if(GamePanel.simPieces.get(l) == this){
+                return l;
             }
         }
         return 0;
@@ -96,23 +98,15 @@ public class Piece {
         y = getY(row);
         preCol = getCol(x);
         preRow = getRow(y);
-        int otherRow = 7 - preRow;
-        int otherCol = 7 - preCol;
-
-        index = (otherRow * 8) + (otherCol);
         moved = true;
     }
 
-    public boolean canMove(int targetCol,int targetRow){
+    public boolean canMove(int targetCol,int targetRow) {
         return false;
     }
 
     public boolean isWithThinBoard(int targetCol, int targetRow){
-        if (targetCol >= 0 && targetRow <= 7 && targetRow >= 0 &&
-        targetCol <= 7){
-            return true;
-        }
-        return false;
+        return targetCol >= 0 && targetRow <= 7 && targetRow >= 0 && targetCol <= 7;
     }
 
     public void resetPosition() {
@@ -137,10 +131,7 @@ public class Piece {
     }
 
     public boolean isSameSquare(int targetCol, int targerRow){
-        if (targetCol == preCol && targerRow == preRow){
-            return true;
-        }
-        return false;
+        return targetCol == preCol && targerRow == preRow;
     }
 
     public boolean pieceIsOnStraightLine(int targetCol, int targetRow){
