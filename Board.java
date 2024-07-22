@@ -1,72 +1,46 @@
-import java.util.*;
+public class Board { 
+	Spot[][] boxes; 
 
-public class Board {
-    List<Piece> pieces = new ArrayList<>();
-    
-    public Board() {
-        parseFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-    }
+	public Board() 
+	{ 
+		this.resetBoard(); 
+	} 
 
-    public int evaluate() {
-        return pieces.stream()
-                     .mapToInt(p -> (p.isWhite ? 1 : -1) * p.getValue())
-                     .sum();
-    }
+	public Spot getBox(int x, int y) 
+	{ 
 
-    public void printBoard() {
-        int index = 0;
-        for (int y = 0; y < 8; y++) {
-            for (int x = 0; x < 8; x++) {
-                System.out.print(pieces.get(index).getType() + " ");
-                index++;
-            }
-            System.out.println();
-        }
-    }
+		if (x < 0 || x > 7 || y < 0 || y > 7) { 
+			throw new Exception("Index out of bound"); 
+		} 
 
-    public void parseFEN(String fen) {
-        pieces.clear();
-        String[] rows = fen.split("/");
-        int y = 0;
-        for (String row : rows) {
-            int x = 0;
-            for (char ch : row.toCharArray()) {
-                if (Character.isDigit(ch)) {
-                    for (int c = 0; c < ch - '0'; c++) {
-                        Piece piece = createPiece(' ', x, y);
-                        if (piece != null) {
-                            pieces.add(piece);
-                        }
-                        x++;
-                    }
-                } else {
-                    Piece piece = createPiece(ch, x, y);
-                    if (piece != null) {
-                        pieces.add(piece);
-                    }
-                    x++;
-                }
-            }
-            y++;
-        }
-    }
+		return boxes[x][y]; 
+	} 
 
-    private Piece createPiece(char ch, int x, int y) {
-        Piece piece = null;
-        switch (Character.toLowerCase(ch)) {
-            case 'p': piece = new Pawn(); break;
-            case 'n': piece = new Knight(); break;
-            case 'b': piece = new Bishop(); break;
-            case 'r': piece = new Rook(); break;
-            case 'q': piece = new Queen(); break;
-            case 'k': piece = new King(); break;
-            case ' ': piece = new Empty(); break;
-        }
-        if (piece != null) {
-            piece.isWhite = Character.isUpperCase(ch);
-            piece.x = x;
-            piece.y = y;
-        }
-        return piece;
-    }
-}
+	public void resetBoard() 
+	{ 
+		// initialize white pieces 
+		boxes[0][0] = new Spot(0, 0, new Rook(true)); 
+		boxes[0][1] = new Spot(0, 1, new Knight(true)); 
+		boxes[0][2] = new Spot(0, 2, new Bishop(true)); 
+		//... 
+		boxes[1][0] = new Spot(1, 0, new Pawn(true)); 
+		boxes[1][1] = new Spot(1, 1, new Pawn(true)); 
+		//... 
+
+		// initialize black pieces 
+		boxes[7][0] = new Spot(7, 0, new Rook(false)); 
+		boxes[7][1] = new Spot(7, 1, new Knight(false)); 
+		boxes[7][2] = new Spot(7, 2, new Bishop(false)); 
+		//... 
+		boxes[6][0] = new Spot(6, 0, new Pawn(false)); 
+		boxes[6][1] = new Spot(6, 1, new Pawn(false)); 
+		//... 
+
+		// initialize remaining boxes without any piece 
+		for (int i = 2; i < 6; i++) { 
+			for (int j = 0; j < 8; j++) { 
+				boxes[i][j] = new Spot(i, j, null); 
+			} 
+		} 
+	} 
+} 
