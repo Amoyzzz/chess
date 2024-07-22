@@ -32,7 +32,7 @@ public class King extends Piece{
 
                 //Regular Castling
                 if (targetCol == preCol + 2 && targetRow == preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
-                    for (Piece piece : GamePanel.simPieces){
+                    for (Piece piece : GamePanel.simPieces){ //why tf are we going through every piece bruh
                         if (piece.col == preCol + 3 && piece.row == preRow && !piece.moved){
                             GamePanel.castlingP = piece;
                             return true;
@@ -42,7 +42,7 @@ public class King extends Piece{
                 //Queen Side Castling
                 if (targetCol == preCol - 2 && targetRow == preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
                     Piece[] p = new Piece[2];
-                    for (Piece piece : GamePanel.simPieces){
+                    for (Piece piece : GamePanel.simPieces){ //who tf wrote this code bruh
                         if (piece.col == preCol - 3 && piece.row == targetRow){
                             p[0] = piece;
                         }
