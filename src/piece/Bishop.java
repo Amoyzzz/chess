@@ -4,8 +4,8 @@ import main.GamePanel;
 import main.Type;
 
 public class Bishop extends Piece{
-    public Bishop(int col, int row, int color) {
-        super(col, row, color);
+    public Bishop(int index, int color) {
+        super(index, color);
 
         type = Type.BISHOP;
 

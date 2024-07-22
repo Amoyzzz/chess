@@ -56,54 +56,54 @@ public class GamePanel extends JPanel implements Runnable{
     public void setPieces() {
 
         // WHITE TEAM
-        pieces.add(new  Pawn(0, 6, WHITE));
-        pieces.add(new  Pawn(1, 6, WHITE));
-        pieces.add(new  Pawn(2, 6, WHITE));
-        pieces.add(new  Pawn(3, 6, WHITE));
-        pieces.add(new  Pawn(4, 6, WHITE));
-        pieces.add(new  Pawn(5, 6, WHITE));
-        pieces.add(new  Pawn(6, 6, WHITE));
-        pieces.add(new  Pawn(7, 6, WHITE));
-        pieces.add(new  Rook(0,7, WHITE));
-        pieces.add(new  Rook(7, 7,WHITE));
-        pieces.add(new  Knight(1, 7,WHITE));
-        pieces.add(new  Knight(6, 7,WHITE));
-        pieces.add(new  Bishop(2, 7,WHITE));
-        pieces.add(new  Bishop(5, 7,WHITE));
-        pieces.add(new  Queen(3, 7,WHITE));
-        pieces.add(new  King(4, 7,WHITE));
+        pieces.add(new  Pawn(15, WHITE));
+        pieces.add(new  Pawn(14, WHITE));
+        pieces.add(new  Pawn(13, WHITE));
+        pieces.add(new  Pawn(12, WHITE));
+        pieces.add(new  Pawn(11, WHITE));
+        pieces.add(new  Pawn(10, WHITE));
+        pieces.add(new  Pawn(9, WHITE));
+        pieces.add(new  Pawn(8, WHITE));
+        pieces.add(new  Rook(0, WHITE));
+        pieces.add(new  Rook(7,WHITE));
+        pieces.add(new  Knight(6,WHITE));
+        pieces.add(new  Knight(1,WHITE));
+        pieces.add(new  Bishop(2,WHITE));
+        pieces.add(new  Bishop(5,WHITE));
+        pieces.add(new  Queen(4,WHITE));
+        pieces.add(new  King(3,WHITE));
 
         // BLACK TEAM
-        pieces.add(new Pawn(0, 1,BLACK));
-        pieces.add(new Pawn(1, 1,BLACK));
-        pieces.add(new Pawn(2, 1,BLACK));
-        pieces.add(new Pawn(3, 1,BLACK));
-        pieces.add(new Pawn(4, 1,BLACK));
-        pieces.add(new Pawn(5, 1,BLACK));
-        pieces.add(new Pawn(6, 1,BLACK));
-        pieces.add(new Pawn(7, 1,BLACK));
-        pieces.add(new Rook(0, 0,BLACK));
-        pieces.add(new Rook(7, 0,BLACK));
-        pieces.add(new Knight(1, 0,BLACK));
-        pieces.add(new Knight(6, 0,BLACK));
-        pieces.add(new Bishop(2, 0,BLACK));
-        pieces.add(new Bishop(5, 0,BLACK));
-        pieces.add(new Queen(3, 0,BLACK));
-        pieces.add(new King(4, 0,BLACK));
+        pieces.add(new Pawn(48,BLACK));
+        pieces.add(new Pawn(49,BLACK));
+        pieces.add(new Pawn(50,BLACK));
+        pieces.add(new Pawn(51,BLACK));
+        pieces.add(new Pawn(52,BLACK));
+        pieces.add(new Pawn(53,BLACK));
+        pieces.add(new Pawn(54,BLACK));
+        pieces.add(new Pawn(55,BLACK));
+        pieces.add(new Rook(56,BLACK));
+        pieces.add(new Rook(63,BLACK));
+        pieces.add(new Knight(62,BLACK));
+        pieces.add(new Knight(57,BLACK));
+        pieces.add(new Bishop(58,BLACK));
+        pieces.add(new Bishop(61,BLACK));
+        pieces.add(new Queen(60,BLACK));
+        pieces.add(new King(59,BLACK));
     }
 
     //Test
     public void testPromotion() {
-        pieces.add(new Pawn(0,4,WHITE));
-        pieces.add(new Pawn(5,6,BLACK));
+        // pieces.add(new Pawn(0,4,WHITE));
+        // pieces.add(new Pawn(5,6,BLACK));
     }
 
     public void testIllegal(){
-        pieces.add(new Queen(2,2,WHITE));
-        pieces.add(new King(3,4,WHITE));
-        pieces.add(new King(0,3,BLACK));
-        pieces.add(new Bishop(0,4,BLACK));
-        pieces.add(new Queen(4,4,BLACK));
+        // pieces.add(new Queen(2,2,WHITE));
+        // pieces.add(new King(3,4,WHITE));
+        // pieces.add(new King(0,3,BLACK));
+        // pieces.add(new Bishop(0,4,BLACK));
+        // pieces.add(new Queen(4,4,BLACK));
 
     }
 
@@ -210,10 +210,10 @@ public class GamePanel extends JPanel implements Runnable{
             for(Piece piece : promoPieces){
                 if (piece.col == mouse.x/Board.SQUARE_SIZE && piece.row == mouse.y/Board.SQUARE_SIZE){
                     switch (piece.type){
-                        case ROOK: simPieces.add(new Rook(activeP.col, activeP.row, currentColor)); break;
-                        case KNIGHT: simPieces.add(new Knight(activeP.col, activeP.row, currentColor)); break;
-                        case BISHOP: simPieces.add(new Bishop(activeP.col, activeP.row, currentColor)); break;
-                        case QUEEN: simPieces.add(new Queen(activeP.col, activeP.row, currentColor)); break;
+                        case ROOK: simPieces.add(new Rook(activeP.index, currentColor)); break;
+                        case KNIGHT: simPieces.add(new Knight(activeP.index, currentColor)); break;
+                        case BISHOP: simPieces.add(new Bishop(activeP.index, currentColor)); break;
+                        case QUEEN: simPieces.add(new Queen(activeP.index, currentColor)); break;
                         default: break;
                     }
                     simPieces.remove(activeP.getIndex());
@@ -397,10 +397,10 @@ public class GamePanel extends JPanel implements Runnable{
         if (activeP.type == Type.PAWN){
             if (currentColor == WHITE && activeP.row == 0 || currentColor == BLACK && activeP.row == 7){
                 promoPieces.clear();
-                promoPieces.add(new Rook(9,2,currentColor));
-                promoPieces.add(new Knight(9,3,currentColor));
-                promoPieces.add(new Bishop(9,4,currentColor));
-                promoPieces.add(new Queen(9,5,currentColor));
+                promoPieces.add(new Rook(100,currentColor));
+                promoPieces.add(new Knight(101,currentColor));
+                promoPieces.add(new Bishop(102,currentColor));
+                promoPieces.add(new Queen(103,currentColor));
                 return true;
             }
         }

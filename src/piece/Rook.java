@@ -4,9 +4,9 @@ import main.GamePanel;
 import main.Type;
 
 public class Rook extends Piece{
-    public Rook(int col, int row, int color) {
-        super(col, row, color);
-
+    boolean hasMoved = false;
+    public Rook(int index, int color) {
+        super(index, color);
         type = Type.ROOK;
 
         if (color == GamePanel.WHITE) {

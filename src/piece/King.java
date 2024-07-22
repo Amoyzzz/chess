@@ -4,8 +4,8 @@ import main.GamePanel;
 import main.Type;
 
 public class King extends Piece{
-    public King(int col, int row, int color) {
-        super(col, row, color);
+    public King(int index, int color) {
+        super(index, color);
 
         type = Type.KING;
 
@@ -32,7 +32,7 @@ public class King extends Piece{
 
                 //Regular Castling
                 if (targetCol == preCol + 2 && targetRow == preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
-                    for (Piece piece : GamePanel.simPieces){ //why tf are we going through every piece bruh
+                    for (Piece piece : GamePanel.simPieces){
                         if (piece.col == preCol + 3 && piece.row == preRow && !piece.moved){
                             GamePanel.castlingP = piece;
                             return true;
@@ -42,7 +42,7 @@ public class King extends Piece{
                 //Queen Side Castling
                 if (targetCol == preCol - 2 && targetRow == preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
                     Piece[] p = new Piece[2];
-                    for (Piece piece : GamePanel.simPieces){ //who tf wrote this code bruh
+                    for (Piece piece : GamePanel.simPieces){
                         if (piece.col == preCol - 3 && piece.row == targetRow){
                             p[0] = piece;
                         }

@@ -3,9 +3,7 @@ package piece;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
-
 import main.Board;
 import main.GamePanel;
 import main.Type;
@@ -15,14 +13,24 @@ public class Piece {
     public Type type;
     public BufferedImage image;
     public int x, y;
-    public int col, row, preCol, preRow;
+    public int index, preCol, preRow;
     public int color;
+    public int col, row;
     public Piece hittingP;
     public boolean moved, twoStepped;
 
-    public Piece(int col, int row, int color) {
-        this.col = col;
-        this.row = row;
+    public Piece(int index, int color) {
+
+        this.index = index;
+        col = index % 8;
+        row = index / 8;
+        col = 7 - col;
+        row = 7 - row;
+        if(index >= 100){
+            row = 2;
+            col = 9;
+            row+=index - 100;
+        }  
         this.color = color;
         x = getX(col);
         y = getY(row);
