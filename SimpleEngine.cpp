@@ -4,7 +4,9 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+
 using namespace std;
+
 // Constants for piece values
 const int PAWN_VALUE = 100;
 const int KNIGHT_VALUE = 320;
@@ -13,101 +15,119 @@ const int ROOK_VALUE = 500;
 const int QUEEN_VALUE = 900;
 const int KING_VALUE = 1000000;
 
-// Basic board representation
+// Base class for pieces
+struct Piece {
+    int x, y;
+    bool isWhite;
+    virtual int getValue() const = 0;
+    virtual char getType() const = 0;
+};
+
+// Derived classes for each piece type
+struct Pawn : public Piece {
+    int getValue() const override { return PAWN_VALUE; }
+    char getType() const override { return isWhite ? 'P' : 'p'; }
+};
+
+struct Knight : public Piece {
+    int getValue() const override { return KNIGHT_VALUE; }
+    char getType() const override { return isWhite ? 'N' : 'n'; }
+};
+
+struct Bishop : public Piece {
+    int getValue() const override { return BISHOP_VALUE; }
+    char getType() const override { return isWhite ? 'B' : 'b'; }
+};
+
+struct Rook : public Piece {
+    int getValue() const override { return ROOK_VALUE; }
+    char getType() const override { return isWhite ? 'R' : 'r'; }
+};
+
+struct Queen : public Piece {
+    int getValue() const override { return QUEEN_VALUE; }
+    char getType() const override { return isWhite ? 'Q' : 'q'; }
+};
+
+struct King : public Piece {
+    int getValue() const override { return KING_VALUE; }
+    char getType() const override { return isWhite ? 'K' : 'k'; }
+};
+
 class Board {
 public:
-    string board[64];
+    vector<Piece> pieces;
 
     Board() {
-        parseFEN("startpos");
+        parseFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     }
-    int evaluate() {
-        // Simple evaluation function
+
+    ~Board() {
+        
+    }
+
+    int evaluate() const {
         int score = 0;
-        for (const auto &piece : board) {
-            if (piece == "P") score += PAWN_VALUE;
-            if (piece == "N") score += KNIGHT_VALUE;
-            if (piece == "B") score += BISHOP_VALUE;
-            if (piece == "R") score += ROOK_VALUE;
-            if (piece == "Q") score += QUEEN_VALUE;
-            if (piece == "K") score += KING_VALUE;
-            if (piece == "p") score -= PAWN_VALUE;
-            if (piece == "n") score -= KNIGHT_VALUE;
-            if (piece == "b") score -= BISHOP_VALUE;
-            if (piece == "r") score -= ROOK_VALUE;
-            if (piece == "q") score -= QUEEN_VALUE;
-            if (piece == "k") score -= KING_VALUE;
+        for (const auto& piece : pieces) {
+            score += (piece.isWhite ? 1 : -1) * piece.getValue();
         }
         return score;
     }
-
-    void makeMove(const string &move) {
-        // Dummy implementation
-        // Actual implementation would update the board state
-    }
-
-    void undoMove(const string &move) {
-        // Dummy implementation
-        // Actual implementation would revert the board state
-    }
-
-    void parseFEN(const string &fen) {
-        // Parse FEN chess notation and turn it into an 8 by 8 chess grid
-        string row;
+    void printBoard(){
         int index = 0;
+        for(int c = 0; c < 8; c++){
+            for(int j = 0; j < 8; j++){
+                cout << pieces[index].getType() << " ";
+                index++;
+            }
+            cout << endl;
+        }
+    }
+    void parseFEN(const string& fen) {
+        pieces.clear();
+        string row;
+        int y = 0;
         istringstream iss(fen);
-        board[index++] = ' ';
         while (getline(iss, row, '/')) {
-            for (const auto &piece : row) {
-                if (piece >= '1' && piece <= '8') {
-                    int numEmpty = piece - '0';
-                    while (numEmpty--) {
-                        board[index++] = '.';
-                    }
+            int x = 0;
+            for (const auto& ch : row) {
+                if (isdigit(ch)) {
+                    x += ch - '0';
                 } else {
-                    board[index++] = piece;
+                    Piece* piece = createPiece(ch, x, y);
+                    if (piece) {
+                        pieces.push_back(piece);
+                    }
+                    x++;
                 }
             }
-            board[index++] = ' ';
+            y++;
         }
+    }
+
+private:
+    Piece createPiece(char ch, int x, int y) {
+        Piece* piece = nullptr;
+        switch (tolower(ch)) {
+            case 'p': piece = new Pawn(); break;
+            case 'n': piece = new Knight(); break;
+            case 'b': piece = new Bishop(); break;
+            case 'r': piece = new Rook(); break;
+            case 'q': piece = new Queen(); break;
+            case 'k': piece = new King(); break;
+            default: break;
+        }
+        if (piece) {
+            piece.isWhite = isupper(ch);
+            piece->x = x;
+            piece->y = y;
+        }
+        return piece;
     }
 };
 
-int minimax(Board &board, int depth, int alpha, int beta, bool isMaximizing) {
-
-}
-
-void uciLoop() {
-    Board board;
-    string input;
-    while (true) {
-        getline(cin, input);
-        if (input == "uci") {
-            cout << "id name SimpleEngine\n";
-            cout << "id author YourName\n";
-            cout << "uciok\n";
-        } else if (input == "isready") {
-            cout << "readyok\n";
-        } else if (input == "ucinewgame") {
-            // Reset board for new game
-            board.parseFEN("startpos");
-        } else if (input.substr(0, 8) == "position") {
-            if (input.substr(9, 3) == "fen") {
-                string fen = input.substr(13);
-                board.parseFEN(fen);
-            } else if (input.substr(9, 8) == "startpos") {
-                board.parseFEN("startpos");
-            }
-        } else if (input.substr(0, 2) == "go") {
-            string bestmove;
-            cout << "bestmove " << bestMove << "\n";
-        } else if (input == "quit") {
-            break;
-        }
-    }
-}
-
 int main() {
-    uciLoop();
+    Board board;
+    board.printBoard();
     return 0;
 }
