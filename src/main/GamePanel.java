@@ -1,10 +1,9 @@
 package main;
 
-import piece.*;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import javax.swing.*;
+import piece.*;
 
 public class GamePanel extends JPanel implements Runnable{
     public static final int WIDTH = 800;
@@ -227,46 +226,52 @@ public class GamePanel extends JPanel implements Runnable{
         }
 
     }
-
+    private boolean leavesKingInCheck() {
+        Piece king = getKing(false);
+        return isIllegal(king);
+    }
+    
     private void simulate() {
-
         canMove = false;
         validSquare = false;
-
+    
         // Reset the piece list in every loop
         // This is basically for restoring the removed piece during the simulation
         copyPieces(pieces, simPieces);
-
+    
         // Reset the castling piece's position
-        if (castlingP != null){
+        if (castlingP != null) {
             castlingP.col = castlingP.preCol;
             castlingP.x = castlingP.getX(castlingP.col);
             castlingP = null;
         }
-
-        // if a piece is being hold, update its position
+    
+        // if a piece is being held, update its position
         activeP.x = mouse.x - Board.HALF_SQUARE_SIZE;
         activeP.y = mouse.y - Board.HALF_SQUARE_SIZE;
         activeP.col = activeP.getCol(activeP.x);
         activeP.row = activeP.getRow(activeP.y);
-
+    
         // Check if the piece is hovering over a reachable square
-        if (activeP.canMove(activeP.col, activeP.row)){
-
+        if (activeP.canMove(activeP.col, activeP.row)) {
             canMove = true;
-
+    
             // if hitting a piece, remove it from the list
-            if(activeP.hittingP != null){
+            if (activeP.hittingP != null) {
                 simPieces.remove(activeP.hittingP.getIndex());
             }
-
+    
             checkCastling();
-
-            if (!isIllegal(activeP) || !opponentCanCaptureKing()){
-                validSquare = true;
+    
+            if (!isIllegal(activeP) || !opponentCanCaptureKing()) {
+                // Ensure the move doesn't leave the king in check
+                if (!leavesKingInCheck()) {
+                    validSquare = true;
+                }
             }
         }
     }
+    
 
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -435,17 +440,17 @@ public class GamePanel extends JPanel implements Runnable{
         return king;
     }
 
-    private boolean isIllegal(Piece king){
-
-        if (king.type == Type.KING){
-             for (Piece piece : simPieces){
-                 if (piece != king && piece.color != king.color && piece.canMove(king.col, king.row)){
-                     return true;
-                 }
-             }
+    private boolean isIllegal(Piece king) {
+        if (king.type == Type.KING) {
+            for (Piece piece : simPieces) {
+                if (piece != king && piece.color != king.color && piece.canMove(king.col, king.row)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
+    
 
     private boolean opponentCanCaptureKing() {
 
