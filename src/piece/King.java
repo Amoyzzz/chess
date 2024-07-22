@@ -33,7 +33,7 @@ public class King extends Piece{
                 //Regular Castling
                 if (targetCol == preCol + 2 && targetRow == preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
                     for (Piece piece : GamePanel.simPieces){
-                        if (piece.col == preCol + 3 && piece.row == preRow && !piece.moved){
+                        if (piece.col == preCol + 3 && piece.row == preRow && !piece.moved && piece.type == Type.ROOK && piece.color == this.color){
                             GamePanel.castlingP = piece;
                             return true;
                         }
@@ -49,7 +49,7 @@ public class King extends Piece{
                         if (piece.col == preCol - 4 && piece.row == targetRow){
                             p[1] = piece;
                         }
-                        if (p[0] == null && p[1] != null && !p[1].moved){
+                        if (p[0] == null && p[1] != null && !p[1].moved && p[1].type == Type.ROOK && p[1].color == this.color){
                             GamePanel.castlingP = p[1];
                             return true;
                         }
