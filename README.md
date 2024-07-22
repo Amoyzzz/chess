@@ -19,7 +19,4 @@ Version 1_EngineBase
 Welcome to Athena! The world's best chess engine.
 
 
-Developed by:
-Amoyzzz
-Endqrmqn
-NicholasIGuess
+Developed by @Amoyzzz, @Endqrmqn, and @NicholasIGuess
