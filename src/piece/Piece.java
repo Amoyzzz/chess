@@ -32,20 +32,19 @@ public class Piece {
             row+=index - 100;
         }  
         this.color = color;
-        x = getX(col);
-        y = getY(row);
+        x = col * Board.SQUARE_SIZE;
+        y = row * Board.SQUARE_SIZE;
         preCol = col;
         preRow = row;
     }
 
     public BufferedImage getImage(String imagePath) {
-        BufferedImage image = null;
+        BufferedImage picture = null;
         try {
-            image = ImageIO.read(Piece.class.getResourceAsStream(imagePath + ".png"));
-        }catch (IOException e){
-            e.printStackTrace();
+            picture = ImageIO.read(Piece.class.getResourceAsStream(imagePath + ".png"));
+        }catch (IOException e){//best catch
         }
-        return image;
+        return picture;
     }
 
     public int getX(int col) {
@@ -70,9 +69,9 @@ public class Piece {
     }
 
     public int getIndex(){
-        for (int index = 0; index < GamePanel.simPieces.size(); index++) {
-            if(GamePanel.simPieces.get(index) == this){
-                return index;
+        for (int loc = 0; loc < GamePanel.simPieces.size(); loc++) {
+            if(GamePanel.simPieces.get(loc) == this){
+                return loc;
             }
         }
         return 0;
@@ -108,11 +107,7 @@ public class Piece {
     }
 
     public boolean isWithThinBoard(int targetCol, int targetRow){
-        if (targetCol >= 0 && targetRow <= 7 && targetRow >= 0 &&
-        targetCol <= 7){
-            return true;
-        }
-        return false;
+        return targetCol >= 0 && targetRow <= 7 && targetRow >= 0 && targetCol <= 7;
     }
 
     public void resetPosition() {
@@ -137,10 +132,7 @@ public class Piece {
     }
 
     public boolean isSameSquare(int targetCol, int targerRow){
-        if (targetCol == preCol && targerRow == preRow){
-            return true;
-        }
-        return false;
+        return targetCol == preCol && targerRow == preRow;
     }
 
     public boolean pieceIsOnStraightLine(int targetCol, int targetRow){

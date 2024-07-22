@@ -381,14 +381,15 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     private void checkCastling(){
-
-        if (castlingP != null){
-            if (castlingP.col == 0) {
-                castlingP.col += 3;
-            }else if (castlingP.col == 7){
-                castlingP.col -= 2;
+        if (!isKingInCheck()){
+            if (castlingP != null){
+                if (castlingP.col == 0) {
+                    castlingP.col += 3;
+                }else if (castlingP.col == 7){
+                    castlingP.col -= 2;
+                }
+                castlingP.x = castlingP.getX(castlingP.col);
             }
-            castlingP.x = castlingP.getX(castlingP.col);
         }
     }
 

@@ -15,6 +15,7 @@ public class Knight extends Piece{
             image = getImage("/piece/b-knight");
         }
     }
+    @Override
     public boolean canMove(int targetCol, int targetRow){
 
         if (isWithThinBoard(targetCol, targetRow)){
