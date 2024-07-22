@@ -31,8 +31,6 @@ public class King extends Piece {
 
             // Castling
             if (!moved) {
-                // Check if the king is in check
-
                 // Regular Castling
                 if (targetCol == preCol + 2 && targetRow == preRow && !pieceIsOnStraightLine(targetCol, targetRow)) {
                     for (Piece piece : GamePanel.simPieces) {

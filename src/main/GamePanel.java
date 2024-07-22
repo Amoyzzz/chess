@@ -261,9 +261,8 @@ public class GamePanel extends JPanel implements Runnable{
                 simPieces.remove(activeP.hittingP.getIndex());
             }
     
-            checkCastling();
     
-            if (!isIllegal(activeP) || !opponentCanCaptureKing()) {
+            if (!isIllegal(activeP) || !opponentCanCaptureKing() || checkCastling()) {
                 // Ensure the move doesn't leave the king in check
                 if (!leavesKingInCheck()) {
                     validSquare = true;
@@ -380,17 +379,20 @@ public class GamePanel extends JPanel implements Runnable{
         activeP = null;
     }
 
-    private void checkCastling(){
+    private boolean checkCastling(){
         if (!isKingInCheck()){
             if (castlingP != null){
                 if (castlingP.col == 0) {
                     castlingP.col += 3;
+                    return true;
                 }else if (castlingP.col == 7){
                     castlingP.col -= 2;
+                    return true;
                 }
-                castlingP.x = castlingP.getX(castlingP.col);
+                // castlingP.x = castlingP.getX(castlingP.col);
             }
         }
+        return false;
     }
 
     private  boolean canPromote(){
