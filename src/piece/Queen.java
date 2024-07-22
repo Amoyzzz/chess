@@ -4,8 +4,8 @@ import main.GamePanel;
 import main.Type;
 
 public class Queen extends Piece{
-    public Queen(int col, int row, int color) {
-        super(col, row, color);
+    public Queen(int index, int color) {
+        super(index, color);
 
         type = Type.QUEEN;
 

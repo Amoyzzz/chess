@@ -5,8 +5,8 @@ import main.Type;
 
 public class Pawn extends Piece{
 
-    public Pawn(int col, int row, int color) {
-        super(col, row, color);
+    public Pawn(int index, int color) {
+        super(index, color);
 
         type = Type.PAWN;
 
