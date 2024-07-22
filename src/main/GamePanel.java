@@ -412,12 +412,13 @@ public class GamePanel extends JPanel implements Runnable{
 
         Piece king = getKing(true);
 
-        if (activeP.canMove(king.col, king.row)){
-            checkingP = activeP;
-            return true;
-        }else {
-            checkingP = null;
+        for (Piece piece : pieces){
+            if (piece.color != king.color && piece.canMove(king.col, king.row)){
+                checkingP = piece;
+                return true;
+            }
         }
+        checkingP = null;
 
         return false;
     }
