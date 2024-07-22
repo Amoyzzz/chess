@@ -96,6 +96,10 @@ public class Piece {
         y = getY(row);
         preCol = getCol(x);
         preRow = getRow(y);
+        int otherRow = 7 - preRow;
+        int otherCol = 7 - preCol;
+
+        index = (otherRow * 8) + (otherCol);
         moved = true;
     }
 
