@@ -1,6 +1,5 @@
 public class King extends Piece {
-
-    public King(int location, boolean white) {
-        super(location, white);
+    public King (int location, String fen) {
+        super(location, fen);
     }
 }

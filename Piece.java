@@ -1,10 +1,10 @@
 public class Piece {
     private int location;
-    private boolean white;
+    private String fen; //e is empty
 
-    public Piece(int location, boolean white) {
+    public Piece(int location, String fen) {
         this.location = location;
-        this.white = white;
+        this.fen = fen;
     }
 
     public int getlocation() {
@@ -15,11 +15,11 @@ public class Piece {
         this.location = location;
     }
 
-    public boolean isWhite() {
-        return white;
+    public String getFen() {
+        return fen;
     }
 
-    public void setWhite(boolean white) {
-        this.white = white;
+    public void setFen(String fen) {
+        this.fen = fen;
     }
 }

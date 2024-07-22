@@ -1,6 +1,5 @@
 public class Knight extends Piece {
-
-    public Knight (int location, boolean white) {
-        super(location, white);
+    public Knight (int location, String fen) {
+        super(location, fen);
     }
 }

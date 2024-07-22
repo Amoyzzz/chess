@@ -1,6 +1,5 @@
 public class Empty extends Piece {
-
-    public Empty (int location, boolean white) {
-        super(location, white);
+    public Empty (int location, String fen) {
+        super(location, "e");
     }
 }

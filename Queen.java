@@ -1,6 +1,5 @@
 public class Queen extends Piece {
-
-    public Queen(int location, boolean white) {
-        super(location, white);
+    public Queen (int location, String fen) {
+        super(location, fen);
     }
 }
