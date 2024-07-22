@@ -4,7 +4,7 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
-
+using namespace std;
 // Constants for piece values
 const int PAWN_VALUE = 100;
 const int KNIGHT_VALUE = 320;
@@ -61,9 +61,8 @@ public:
         // Actual implementation would revert the board state
     }
 
-    void parseFEN(const std::string &fen) {
-        // Dummy implementation for startpos
-        std::string initialPosition[64] = {
+    void parseFEN(const std::string& fenString) {
+        std::string startingPosition[64] = {
             "r", "n", "b", "q", "k", "b", "n", "r",
             "p", "p", "p", "p", "p", "p", "p", "p",
             ".", ".", ".", ".", ".", ".", ".", ".",
@@ -73,43 +72,11 @@ public:
             "P", "P", "P", "P", "P", "P", "P", "P",
             "R", "N", "B", "Q", "K", "B", "N", "R"
         };
-        std::copy(initialPosition, initialPosition + 64, board);
     }
 };
 
 int minimax(Board &board, int depth, int alpha, int beta, bool isMaximizing) {
-    if (depth == 0) {
-        return board.evaluate();
-    }
 
-    std::vector<std::string> moves = board.generateMoves();
-    if (isMaximizing) {
-        int maxEval = -10000;
-        for (const auto &move : moves) {
-            board.makeMove(move);
-            int eval = minimax(board, depth - 1, alpha, beta, false);
-            board.undoMove(move);
-            maxEval = std::max(maxEval, eval);
-            alpha = std::max(alpha, eval);
-            if (beta <= alpha) {
-                break;
-            }
-        }
-        return maxEval;
-    } else {
-        int minEval = 10000;
-        for (const auto &move : moves) {
-            board.makeMove(move);
-            int eval = minimax(board, depth - 1, alpha, beta, true);
-            board.undoMove(move);
-            minEval = std::min(minEval, eval);
-            beta = std::min(beta, eval);
-            if (beta <= alpha) {
-                break;
-            }
-        }
-        return minEval;
-    }
 }
 
 void uciLoop() {
