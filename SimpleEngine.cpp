@@ -11,26 +11,16 @@ const int KNIGHT_VALUE = 320;
 const int BISHOP_VALUE = 330;
 const int ROOK_VALUE = 500;
 const int QUEEN_VALUE = 900;
-const int KING_VALUE = 20000;
+const int KING_VALUE = 1000000;
 
 // Basic board representation
 class Board {
 public:
-    std::string board[64];
+    string board[64];
 
     Board() {
         parseFEN("startpos");
     }
-
-    std::vector<std::string> generateMoves() {
-        std::vector<std::string> moves;
-        // Dummy moves for the sake of example
-        moves.push_back("e2e4");
-        moves.push_back("d2d4");
-        moves.push_back("g1f3");
-        return moves;
-    }
-
     int evaluate() {
         // Simple evaluation function
         int score = 0;
@@ -51,27 +41,35 @@ public:
         return score;
     }
 
-    void makeMove(const std::string &move) {
+    void makeMove(const string &move) {
         // Dummy implementation
         // Actual implementation would update the board state
     }
 
-    void undoMove(const std::string &move) {
+    void undoMove(const string &move) {
         // Dummy implementation
         // Actual implementation would revert the board state
     }
 
-    void parseFEN(const std::string& fenString) {
-        std::string startingPosition[64] = {
-            "r", "n", "b", "q", "k", "b", "n", "r",
-            "p", "p", "p", "p", "p", "p", "p", "p",
-            ".", ".", ".", ".", ".", ".", ".", ".",
-            ".", ".", ".", ".", ".", ".", ".", ".",
-            ".", ".", ".", ".", ".", ".", ".", ".",
-            ".", ".", ".", ".", ".", ".", ".", ".",
-            "P", "P", "P", "P", "P", "P", "P", "P",
-            "R", "N", "B", "Q", "K", "B", "N", "R"
-        };
+    void parseFEN(const string &fen) {
+        // Parse FEN chess notation and turn it into an 8 by 8 chess grid
+        string row;
+        int index = 0;
+        istringstream iss(fen);
+        board[index++] = ' ';
+        while (getline(iss, row, '/')) {
+            for (const auto &piece : row) {
+                if (piece >= '1' && piece <= '8') {
+                    int numEmpty = piece - '0';
+                    while (numEmpty--) {
+                        board[index++] = '.';
+                    }
+                } else {
+                    board[index++] = piece;
+                }
+            }
+            board[index++] = ' ';
+        }
     }
 };
 
@@ -81,39 +79,28 @@ int minimax(Board &board, int depth, int alpha, int beta, bool isMaximizing) {
 
 void uciLoop() {
     Board board;
-    std::string input;
+    string input;
     while (true) {
-        std::getline(std::cin, input);
+        getline(cin, input);
         if (input == "uci") {
-            std::cout << "id name SimpleEngine\n";
-            std::cout << "id author YourName\n";
-            std::cout << "uciok\n";
+            cout << "id name SimpleEngine\n";
+            cout << "id author YourName\n";
+            cout << "uciok\n";
         } else if (input == "isready") {
-            std::cout << "readyok\n";
+            cout << "readyok\n";
         } else if (input == "ucinewgame") {
             // Reset board for new game
             board.parseFEN("startpos");
         } else if (input.substr(0, 8) == "position") {
             if (input.substr(9, 3) == "fen") {
-                std::string fen = input.substr(13);
+                string fen = input.substr(13);
                 board.parseFEN(fen);
             } else if (input.substr(9, 8) == "startpos") {
                 board.parseFEN("startpos");
             }
         } else if (input.substr(0, 2) == "go") {
-            std::vector<std::string> moves = board.generateMoves();
-            std::string bestMove = moves[0];
-            int bestValue = -10000;
-            for (const auto &move : moves) {
-                board.makeMove(move);
-                int boardValue = minimax(board, 3, -10000, 10000, false);
-                board.undoMove(move);
-                if (boardValue > bestValue) {
-                    bestValue = boardValue;
-                    bestMove = move;
-                }
-            }
-            std::cout << "bestmove " << bestMove << "\n";
+            string bestmove;
+            cout << "bestmove " << bestMove << "\n";
         } else if (input == "quit") {
             break;
         }
