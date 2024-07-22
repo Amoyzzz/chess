@@ -30,7 +30,7 @@ public class King extends Piece{
             //Castling
             if(!moved){
 
-                //Right casling
+                //Regular Castling
                 if (targetCol == preCol + 2 && targetRow == preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
                     for (Piece piece : GamePanel.simPieces){
                         if (piece.col == preCol + 3 && piece.row == preRow && !piece.moved){
@@ -39,8 +39,8 @@ public class King extends Piece{
                         }
                     }
                 }
-                //Left casling
-                if (targetCol == preCol + 2 && targetRow == preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
+                //Queen Side Castling
+                if (targetCol == preCol - 2 && targetRow == preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
                     Piece[] p = new Piece[2];
                     for (Piece piece : GamePanel.simPieces){
                         if (piece.col == preCol - 3 && piece.row == targetRow){
