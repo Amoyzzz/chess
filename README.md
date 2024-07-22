@@ -5,7 +5,7 @@
   \/_/\/_/     \/_/   \/_/\/_/   \/_____/   \/_/ \/_/   \/_/\/_/ 
                                                                  
 
-Version 1.0.0
+Version 0.0.1
 
 Welcome to Athena! The world's best chess engine.
 
