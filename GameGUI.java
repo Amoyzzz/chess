@@ -1,12 +1,16 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
+
 import javax.swing.JFrame;
 public class GameGUI {
+    Piece[] board;
+
     public GameGUI(Piece[] board){
-        runGUI(board);
+        this.board = board;
     }
-    public static void runGUI(Piece[] board){
+    
+    public void runGUI(){
         JFrame frame = new JFrame();
         frame.setLayout(new GridBagLayout());
         frame.getContentPane().setBackground(new Color(31, 31, 31));

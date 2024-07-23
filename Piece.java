@@ -1,45 +1,40 @@
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 
 public class Piece {
     private int location;
     private String fen;
-    private BufferedImage sheet = null;
+    private boolean moved = false;
+    //private BufferedImage sheet = null;
     private Image sprite;
-    private int sheetScale;
+    //private int sheetScale;
 
     public Piece(int location, String fen) {
         this.location = location;
         this.fen = fen;
-        try {
-            File file = new File("piece.png");
-            System.out.println("File exists: " + file.exists());
-            System.out.println("Absolute path: " + file.getAbsolutePath());
+        // try {
+        //     File file = new File("piece.png");
+        //     System.out.println("File exists: " + file.exists());
+        //     System.out.println("Absolute path: " + file.getAbsolutePath());
             
-            // Load the image using ImageIO
-            this.sheet = ImageIO.read(file);
+        //     // Load the image using ImageIO
+        //     this.sheet = ImageIO.read(file);
 
-            this.sheetScale = sheet.getWidth() / 6;
+        //     this.sheetScale = sheet.getWidth() / 6;
 
-            if (fen != null && !fen.equals("e")) {
-                String pieces = "KQBNRPkqbnrp";
-                int index = pieces.indexOf(fen);
-                if (index >= 0) {
-                    int row = Character.isUpperCase(fen.charAt(0)) ? 0 : this.sheetScale;
-                    int col = index % 6;
-                    // Crop and scale the sprite
-                    BufferedImage subimage = sheet.getSubimage(col * this.sheetScale, row, this.sheetScale, this.sheetScale);
-                    this.sprite = subimage.getScaledInstance(85, 85, Image.SCALE_SMOOTH);
-                }
-            }
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
+        //     if (fen != null && !fen.equals("e")) {
+        //         String pieces = "KQBNRPkqbnrp";
+        //         int index = pieces.indexOf(fen);
+        //         if (index >= 0) {
+        //             int row = Character.isUpperCase(fen.charAt(0)) ? 0 : this.sheetScale;
+        //             int col = index % 6;
+        //             // Crop and scale the sprite
+        //             BufferedImage subimage = sheet.getSubimage(col * this.sheetScale, row, this.sheetScale, this.sheetScale);
+        //             this.sprite = subimage.getScaledInstance(85, 85, Image.SCALE_SMOOTH);
+        //         }
+        //     }
+        // }
+        // catch(IOException e){}
     }
 
     public int getLocation() {
@@ -56,6 +51,14 @@ public class Piece {
 
     public void setFen(String fen) {
         this.fen = fen;
+    }
+
+    public boolean hasMoved() {
+        return moved;
+    }
+
+    public void moved() {
+        moved = true;
     }
 
     @Override
