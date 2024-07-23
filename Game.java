@@ -8,6 +8,7 @@ public class Game {
     private final HashMap<String, Integer> places = new HashMap<>();
 
     public boolean makeMove(String move) {
+        Move.init();
         if (!move.contains("O-O") && !move.contains("resign") && !move.contains("draw") && !move.contains("e.p") && !move.contains("=")) {
         } else {
             System.out.println("not implemented yet");
@@ -18,6 +19,9 @@ public class Game {
         int startPos = places.get(from);
         int endPos = places.get(to);
         ArrayList<Integer> moves = possibleMoves(startPos);
+        System.out.println(moves);
+        System.out.println(startPos);
+        System.out.println(endPos);
         if (!moves.contains(endPos)) {
             System.out.println("bro is tweaking");
             return false;
@@ -88,7 +92,6 @@ public class Game {
         }
         for(int i = 0; i < 64; i++){
             if(i == location || board[i].getFen().equals("e")){
-                continue;
             }
             else{
                 if(possibleMoves(i).contains(location)){
@@ -99,162 +102,16 @@ public class Game {
         return false;
     }
 
+    //TODO: check for blockers
     public ArrayList<Integer> possibleMoves(int location) { //doesn't factor in check, stalemate, or checkmate so i have to deal with that
         ArrayList<Integer> possibleMoves = new ArrayList<>();
-        //empty space logic
-        switch (board[location].getFen()) {
-            case "e" -> {
-                return null;
-            }
-
-            //pawn logic
-            //TODO: en passant
-            case "P" -> {
-                if (board[location + 8].getFen().equals("e")) {
-                    possibleMoves.add(location + 8);
-                    if (board[location + 16].getFen().equals("e") && location > 7 && location < 16) {
-                        possibleMoves.add(location + 16);
-                    }
-                }
-                if (location % 8 != 0 && !board[location + 9].getFen().equals("e") && Character.isLowerCase(board[location + 9].getFen().charAt(0))) {
-                    possibleMoves.add(location + 9);
-
-                }
-                if (location % 8 != 7 && !board[location + 7].getFen().equals("e") && Character.isLowerCase(board[location + 7].getFen().charAt(0))) {
-                    possibleMoves.add(location + 7);
-                }
-            }
-            case "p" -> {
-                if (board[location - 8].getFen().equals("e")) {
-                    possibleMoves.add(location - 8);
-                    if (board[location - 16].getFen().equals("e") && location > 47 && location < 56) {
-                        possibleMoves.add(location - 16);
-                    }
-                }
-                if (location % 8 != 0 && !board[location - 7].getFen().equals("e") && Character.isLowerCase(board[location - 7].getFen().charAt(0))) {
-                    possibleMoves.add(location - 7);
-
-                }
-                if (location % 8 != 7 && !board[location - 9].getFen().equals("e") && Character.isLowerCase(board[location - 9].getFen().charAt(0))) {
-                    possibleMoves.add(location - 9);
-                }
-            }
-
-            //knight logic
-            case "N" -> {
-                if (location % 8 != 0 && location < 48 && Character.isLowerCase(board[location + 15].getFen().charAt(0))) {
-                    possibleMoves.add(location + 15);
-                }
-                if (location % 8 != 7 && location < 47 && Character.isLowerCase(board[location + 17].getFen().charAt(0))) {
-                    possibleMoves.add(location + 17);
-                }
-                if (location % 8 > 1 && location < 56 && Character.isLowerCase(board[location + 6].getFen().charAt(0))) {
-                    possibleMoves.add(location + 6);
-                }
-                if (location % 8 < 6 && location < 54 && Character.isLowerCase(board[location + 10].getFen().charAt(0))) {
-                    possibleMoves.add(location + 10);
-                }
-                if (location % 8 != 0 && location > 16 && Character.isLowerCase(board[location - 17].getFen().charAt(0))) {
-                    possibleMoves.add(location - 17);
-                }
-                if (location % 8 != 7 && location > 15 && Character.isLowerCase(board[location - 15].getFen().charAt(0))) {
-                    possibleMoves.add(location - 15);
-                }
-                if (location % 8 < 6 && location > 7 && Character.isLowerCase(board[location - 6].getFen().charAt(0))) {
-                    possibleMoves.add(location - 6);
-                }
-                if (location % 8 > 1 && location > 9 && Character.isLowerCase(board[location - 10].getFen().charAt(0))) {
-                    possibleMoves.add(location - 10);
-                }
-            }
-            case "n" -> {
-                if (location % 8 != 0 && location < 48 && (Character.isUpperCase(board[location + 15].getFen().charAt(0))) || board[location + 15].getFen().equals("e")) {
-                    possibleMoves.add(location + 15);
-                }
-                if (location % 8 != 7 && location < 47 && (Character.isUpperCase(board[location + 17].getFen().charAt(0))) || board[location + 17].getFen().equals("e")) {
-                    possibleMoves.add(location + 17);
-                }
-                if (location % 8 > 1 && location < 56 && (Character.isUpperCase(board[location + 6].getFen().charAt(0))) || board[location + 6].getFen().equals("e")) {
-                    possibleMoves.add(location + 6);
-                }
-                if (location % 8 < 6 && location < 54 && (Character.isUpperCase(board[location + 10].getFen().charAt(0))) || board[location + 10].getFen().equals("e")) {
-                    possibleMoves.add(location + 10);
-                }
-                if (location % 8 != 0 && location > 16 && (Character.isUpperCase(board[location - 17].getFen().charAt(0))) || board[location - 17].getFen().equals("e")) {
-                    possibleMoves.add(location - 17);
-                }
-                if (location % 8 != 7 && location > 15 && (Character.isUpperCase(board[location - 15].getFen().charAt(0))) || board[location - 15].getFen().equals("e")) {
-                    possibleMoves.add(location - 15);
-                }
-                if (location % 8 < 6 && location > 7 && (Character.isUpperCase(board[location - 6].getFen().charAt(0))) || board[location - 6].getFen().equals("e")) {
-                    possibleMoves.add(location - 6);
-                }
-                if (location % 8 > 1 && location > 9 && (Character.isUpperCase(board[location - 10].getFen().charAt(0))) || board[location - 10].getFen().equals("e")) {
-                    possibleMoves.add(location - 10);
-                }
-            }
-
-            //king logic
-            case "K" -> {
-                if (location < 56 && Character.isLowerCase(board[location + 8].getFen().charAt(0))) {
-                    possibleMoves.add(location + 8);
-                }
-                if (location > 7 && Character.isLowerCase(board[location - 8].getFen().charAt(0))) {
-                    possibleMoves.add(location - 8);
-                }
-                if (location % 8 != 0 && Character.isLowerCase(board[location - 1].getFen().charAt(0))) {
-                    possibleMoves.add(location - 1);
-                }
-                if (location % 8 != 7 && Character.isLowerCase(board[location + 1].getFen().charAt(0))) {
-                    possibleMoves.add(location + 1);
-                }
-                if (location < 56 && location % 8 != 0 && Character.isLowerCase(board[location + 7].getFen().charAt(0))) {
-                    possibleMoves.add(location + 7);
-                }
-                if (location < 56 && location % 8 != 7 && location % 8 != 7 && Character.isLowerCase(board[location + 9].getFen().charAt(0))) {
-                    possibleMoves.add(location + 9);
-                }
-                if (location > 7 && location % 8 != 7 && Character.isLowerCase(board[location - 7].getFen().charAt(0))) {
-                    possibleMoves.add(location - 7);
-                }
-                if (location > 7 && location % 8 != 0 && Character.isLowerCase(board[location + 9].getFen().charAt(0))) {
-                    possibleMoves.add(location - 9);
-                }
-            }
-            case "k" -> {
-                if (location < 56 && (Character.isUpperCase(board[location + 8].getFen().charAt(0))) || board[location + 8].getFen().equals("e")) {
-                    possibleMoves.add(location + 8);
-                }
-                if (location > 7 && (Character.isUpperCase(board[location - 8].getFen().charAt(0))) || board[location - 8].getFen().equals("e")) {
-                    possibleMoves.add(location - 8);
-                }
-                if (location % 8 != 0 && (Character.isUpperCase(board[location - 1].getFen().charAt(0))) || board[location - 1].getFen().equals("e")) {
-                    possibleMoves.add(location - 1);
-                }
-                if (location % 8 != 7 && (Character.isUpperCase(board[location + 1].getFen().charAt(0))) || board[location + 1].getFen().equals("e")) {
-                    possibleMoves.add(location + 1);
-                }
-                if (location < 56 && location % 8 != 0 && (Character.isUpperCase(board[location + 7].getFen().charAt(0))) || board[location + 7].getFen().equals("e")) {
-                    possibleMoves.add(location + 7);
-                }
-                if (location < 56 && location % 8 != 7 && (Character.isUpperCase(board[location + 9].getFen().charAt(0))) || board[location + 9].getFen().equals("e")) {
-                    possibleMoves.add(location + 9);
-                }
-                if (location > 7 && location % 8 != 7 && (Character.isUpperCase(board[location - 7].getFen().charAt(0))) || board[location - 7].getFen().equals("e")) {
-                    possibleMoves.add(location - 7);
-                }
-                if (location > 7 && location % 8 != 0 && (Character.isUpperCase(board[location - 9].getFen().charAt(0))) || board[location - 9].getFen().equals("e")) {
-                    possibleMoves.add(location - 9);
-                }
-            }
-
-            //bishop logic
-            case "B" -> {
-                if (location < 56 && location % 8 != 7 && Character.isLowerCase(board[location + 9].getFen().charAt(0))) {
-                    possibleMoves.add(location + 9);
-                }
-            }
-
+        switch (board[location].getFen().toUpperCase()) {
+            case "Q" -> possibleMoves = Move.queenMoves[location];
+            case "R" -> possibleMoves = Move.rookMoves[location];
+            case "B" -> possibleMoves = Move.bishopMoves[location];
+            case "K" -> possibleMoves = Move.kingMoves[location];
+            case "N" -> possibleMoves = Move.knightMoves[location];
+            case "P" -> possibleMoves = Move.pawnMoves(location, board[location].getFen());
         }
         return possibleMoves;
     }
