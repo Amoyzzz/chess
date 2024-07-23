@@ -19,19 +19,14 @@ public class Game {
         int startPos = places.get(from);
         int endPos = places.get(to);
         ArrayList<Integer> moves = possibleMoves(startPos);
-        System.out.println(moves);
-        System.out.println(startPos);
-        System.out.println(endPos);
         if (!moves.contains(endPos)) {
             System.out.println("bro is tweaking");
             return false;
         } else {
-            //swap board[startPos] and board[endPos];
             board[endPos] = board[startPos];
             board[startPos] = new Empty(startPos, "e");
             board[endPos].moved();
             board[endPos].setLocation(endPos);
-            updateBoard();
         }
         return true;
     }
@@ -41,7 +36,7 @@ public class Game {
         }
         for(int i = 0; i < 64; i++){
             if(board[i].getFen().charAt(0) != 'e' && Character.isUpperCase(board[i].getFen().charAt(0))){
-                if(possibleMoves(i).size() > 0){
+                if(!possibleMoves(i).isEmpty()){
                     return false;
                 }
             }
@@ -54,15 +49,12 @@ public class Game {
         }
         for(int i = 0; i < 64; i++){
             if(board[i].getFen().charAt(0) != 'e' && Character.isLowerCase(board[i].getFen().charAt(0))){
-                if(possibleMoves(i).size() > 0){
+                if(!possibleMoves(i).isEmpty()){
                     return false;
                 }
             }
         }
         return true;
-    }
-    public void updateBoard(){
-        System.out.println(toString() + "\n\n");
     }
     public boolean isWhiteKingInCheck(){
         int location = 0;
@@ -73,7 +65,6 @@ public class Game {
         }
         for(int i = 0; i < 64; i++){
             if(i == location || board[i].getFen().equals("e")){
-                continue;
             }
             else{
                 if(possibleMoves(i).contains(location)){
@@ -119,7 +110,8 @@ public class Game {
     @Override
     public String toString() {
         String boardString = "";
-        for (int x = 0; x < 8; x++) {
+        for (int x = 7; x >= 0; x--) {
+            boardString += (x + 1) + "   ";
             for (int y = 0; y < 8; y++) {
                 if (board[x * 8 + y].getFen().equals("e")) {
                     boardString += "  ";
@@ -129,15 +121,15 @@ public class Game {
             }
             boardString += "\n";
         }
-
+        boardString += "\n    a b c d e f g h\n\n";
         return boardString;
     }
 
     public final void parseFEN(String fen) {
         int l = 0;
         String[] fenArray = fen.split("/");
-        for (String fenArray1 : fenArray) {
-            char[] row = fenArray1.toCharArray();
+        for (int i = 7; i >= 0; i--) {
+            char[] row = fenArray[i].toCharArray();
             for (int y = 0; y < row.length; y++) {
                 if (Character.isDigit(row[y])) {
                     for (int c = 0; c < row[y] - '0'; c++) {
@@ -205,10 +197,6 @@ public class Game {
     public Game() {
         initialize();
         parseFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-        //parseFEN("nnnnnnnn/nnnnnnnn/nnnnnnnn/nnnnnnnn/NNNNNNNN/NNNNNNNN/NNNNNNNN/NNNNNNNN");
-
-        // GameGUI gui = new GameGUI(board);
-        // gui.runGUI();
     }
 
     public Game(String fen) {

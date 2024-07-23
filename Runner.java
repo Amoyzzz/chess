@@ -4,6 +4,7 @@ public class Runner {
         System.out.println(game);
         // Scanner s = new Scanner(System.in);
         // String move = s.nextLine();
-        game.makeMove("b1 c3");
+        game.makeMove("e2 e4");
+        System.out.println(game);
     }
 }

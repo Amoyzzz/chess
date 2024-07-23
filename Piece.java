@@ -12,29 +12,6 @@ public class Piece {
     public Piece(int location, String fen) {
         this.location = location;
         this.fen = fen;
-        // try {
-        //     File file = new File("piece.png");
-        //     System.out.println("File exists: " + file.exists());
-        //     System.out.println("Absolute path: " + file.getAbsolutePath());
-            
-        //     // Load the image using ImageIO
-        //     this.sheet = ImageIO.read(file);
-
-        //     this.sheetScale = sheet.getWidth() / 6;
-
-        //     if (fen != null && !fen.equals("e")) {
-        //         String pieces = "KQBNRPkqbnrp";
-        //         int index = pieces.indexOf(fen);
-        //         if (index >= 0) {
-        //             int row = Character.isUpperCase(fen.charAt(0)) ? 0 : this.sheetScale;
-        //             int col = index % 6;
-        //             // Crop and scale the sprite
-        //             BufferedImage subimage = sheet.getSubimage(col * this.sheetScale, row, this.sheetScale, this.sheetScale);
-        //             this.sprite = subimage.getScaledInstance(85, 85, Image.SCALE_SMOOTH);
-        //         }
-        //     }
-        // }
-        // catch(IOException e){}
     }
 
     public int getLocation() {

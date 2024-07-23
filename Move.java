@@ -8,9 +8,8 @@ public class Move {
     static ArrayList<Integer>[] queenMoves = new ArrayList[64];
     static ArrayList<Integer>[] whitePawnMoves = new ArrayList[64];
     static ArrayList<Integer>[] blackPawnMoves = new ArrayList[64];
-    static int[][] grid = new int[8][8];
     static int n = 8;
-    
+    static int[][] grid = new int[8][8];
 
     public static ArrayList<Integer> knightMoves(int location) {
         return knightMoves[location];
@@ -51,17 +50,10 @@ public class Move {
                 index++;
             }
         }
-        
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j < n; j++){
-                System.out.print(grid[i][j] + " ");
-            }
-            System.out.println();
-        }
     }
     public static void initKnightMoves(){
         for(int i = 0; i < 64; i++){
-            knightMoves[i] = new ArrayList<Integer>();
+            knightMoves[i] = new ArrayList<>();
         }
         for(int i = 0; i < n; i++){
             for(int j = 0; j < n; j++){
@@ -94,7 +86,7 @@ public class Move {
     }
     public static void initKingMoves(){
         for(int i = 0; i < 64; i++){
-            kingMoves[i] = new ArrayList<Integer>();
+            kingMoves[i] = new ArrayList<>();
         }
         int[] dir = {0, -1, 1};
         for(int i = 0; i < n; i++){
@@ -111,7 +103,7 @@ public class Move {
     }
     public static void initRookMoves(){
         for(int i = 0; i < 64; i++){
-            rookMoves[i] = new ArrayList<Integer>();
+            rookMoves[i] = new ArrayList<>();
         }
         for(int i = 0; i < n; i++){
             for(int j = 0; j < n; j++){
@@ -134,7 +126,7 @@ public class Move {
     }
     public static void initBishopMoves(){
         for(int i = 0; i < 64; i++){
-            bishopMoves[i] = new ArrayList<Integer>();
+            bishopMoves[i] = new ArrayList<>();
         }
 
         for(int i = 0; i < n; i++){
@@ -158,7 +150,7 @@ public class Move {
     }
     public static void initQueenMoves(){
         for(int i = 0; i < 64; i++){
-            queenMoves[i] = new ArrayList<Integer>();
+            queenMoves[i] = new ArrayList<>();
         }
         for(int i = 0; i < 64; i++){
             for(int a : rookMoves[i]){
@@ -171,7 +163,7 @@ public class Move {
     }
     public static void initWhitePawnMoves(){
         for(int i = 0; i < 64; i++){
-            whitePawnMoves[i] = new ArrayList<Integer>();
+            whitePawnMoves[i] = new ArrayList<>();
         }
         for(int i = 6; i>= 1; i--){
             for(int j = 0; j < n; j++){
@@ -187,7 +179,7 @@ public class Move {
     }
     public static void initBlackPawnMoves(){
         for(int i = 0; i < 64; i++){
-            blackPawnMoves[i] = new ArrayList<Integer>();
+            blackPawnMoves[i] = new ArrayList<>();
         }
         for(int i = 1; i < n-1; i++){
             for(int j = 0; j < n; j++){
