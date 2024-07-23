@@ -7,5 +7,4 @@ public class Runner {
         String move = s.nextLine();
         game.makeMove(move);
     }
-
 }
