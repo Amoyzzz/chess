@@ -1,4 +1,3 @@
-import backstage.*;
 import backstage.move.*;
 public class MinimaxResult {
     public double score;
