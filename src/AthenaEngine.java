@@ -5,14 +5,47 @@ import backstage.move.*;
 public class AthenaEngine {
     private static final double INFINITY = 100000000000.0;
     private static final double MINUS_INFINITY = -100000000000.0;
+    public static void testEval(){
+        String fen = "r1bqkbnr/ppppppp1/8/7p/1nBPP3/5Q2/PPP2PPP/RNB1K1NR w KQkq - 4 5";
+        Board board = new Board();
+        board.loadFromFen(fen);
+        initTables();
+        System.out.println(board);
 
+        System.out.println(eval(board, 0));
+    }
     public static void main(String[] args) {
         Board board = new Board();
         Scanner in = new Scanner(System.in);
-        while (true) {            
-            MinimaxResult result = minimax(board, 6, false, MINUS_INFINITY, INFINITY);
+        initTables();
+    
+        while (true) {
+            // Print the board from the black viewpoint and the evaluation
+            System.out.println(board.toStringFromBlackViewPoint());
+            System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1));
+            System.out.println("\n\n");
+    
+            // Check for end-of-game conditions
+            if (board.isDraw()) {
+                System.out.println("DRAW");
+                break;
+            }
+            if (board.isMated()) {
+                System.out.println("CHECKMATE");
+                break;
+            }
+    
+            // Get and execute the best move from the AI (maximizing player)
+            MinimaxResult result = minimax(board, 5, true, MINUS_INFINITY, INFINITY);
             System.out.println("Chosen move: " + result.bestMove);
             board.doMove(result.bestMove);
+    
+            // Print the board after the AI's move
+            System.out.println(board.toStringFromBlackViewPoint());
+            System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1));
+            System.out.println("\n\n");
+    
+            // Check for end-of-game conditions
             if (board.isDraw()) {
                 System.out.println("DRAW");
                 break;
@@ -21,27 +54,14 @@ public class AthenaEngine {
                 System.out.println("CHECKMATE");
                 break;
             }
-
-            System.out.println(board.toStringFromBlackViewPoint());
-            System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1));
-            System.out.println("\n\n");
+    
+            // Get and execute the player's move (minimizing player)
             board.doMove(in.nextLine());
-
-            if (board.isDraw()) {
-                System.out.println("DRAW");
-                break;
-            }
-            if (board.isMated()) {
-                System.out.println("CHECKMATE");
-                break;
-            }
-            System.out.println(board.toStringFromBlackViewPoint());
-            System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1));
-            System.out.println("\n\n");
         }
-
+    
         in.close();
     }
+    
     
     public static MinimaxResult minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta) {
         if (depth == 0 || board.isMated() || board.isDraw()) {
@@ -275,6 +295,12 @@ public class AthenaEngine {
        }
    }
    public static double eval(Board board, int sideToMove) {
+       if (board.isMated()) {
+           return -INFINITY;
+       }
+       else if(board.isDraw()){
+           return 0;
+       }
        int[] mg = {0, 0};
        int[] eg = {0, 0};
        int gamePhase = 0;
