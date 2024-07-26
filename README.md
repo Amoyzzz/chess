@@ -22,5 +22,6 @@ Using a Minimax algorithm which is pruned using an Alpha-Beta pruner, Athena del
 with a depth of 24 in breakneck speed. 
 
 
-Developed by @Amoyzzz, @Endqrmqn, and @NicholasIGuess
+Developed by @Amoyzzz, @Endqrmqn, and @NicholasIGuess.
+
 Uses [bhlangonijr/chesslib](github.com/bhlangonijr/chesslib) for backend move generation.
