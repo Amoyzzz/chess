@@ -1,19 +1,22 @@
 import java.util.*;
-
 import backstage.*;
 import backstage.move.*;
 
 public class AthenaEngine {
     private static final double INFINITY = 100000000000.0;
     private static final double MINUS_INFINITY = -100000000000.0;
+
     public static void main(String[] args) {
         Board board = new Board();
         Scanner in = new Scanner(System.in);
         System.out.println(board);
-        //evaluate(board);
         while (true) {
             System.out.println(board);
-            System.out.println(evaluate(board));
+            System.out.println("Evaluation: " + evaluate(board));
+            System.out.println("\n\n");
+            board.doMove(in.nextLine());
+            System.out.println("\n\n");
+            
             if (board.isDraw()) {
                 System.out.println("DRAW");
                 break;
@@ -22,48 +25,58 @@ public class AthenaEngine {
                 System.out.println("CHECKMATE");
                 break;
             }
-            System.out.println("\n\n");
-            //try{Thread.sleep(500);}catch(InterruptedException e){}
-            board.doMove(board.legalMoves().get((int)(Math.random() * board.legalMoves().size())));
+            MinimaxResult result = minimax(board, 6, false, MINUS_INFINITY, INFINITY);
+            System.out.println("Chosen move: " + result.bestMove);
+            board.doMove(result.bestMove);
         }
+        in.close();
     }
     
-public static MinimaxResult minimax(Board board, int depth, boolean maximizingPlayer) {
-    if (depth == 0 || board.isMated() || board.isDraw()) {
-        return new MinimaxResult(evaluate(board), null);
+    public static MinimaxResult minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta) {
+        if (depth == 0 || board.isMated() || board.isDraw()) {
+            return new MinimaxResult(evaluate(board), null);
+        }
+
+        if (maximizingPlayer) {
+            double maxEval = MINUS_INFINITY;
+            Move bestMove = null;
+            for (Move move : board.legalMoves()) {
+                board.doMove(move);
+                MinimaxResult result = minimax(board, depth - 1, false, alpha, beta);
+                board.undoMove();
+
+                if (result.score > maxEval) {
+                    maxEval = result.score;
+                    bestMove = move;
+                }
+                alpha = Math.max(alpha, result.score);
+                if(beta <= alpha){
+                    break;
+                }
+            }
+            return new MinimaxResult(maxEval, bestMove);
+        } else {
+            double minEval = INFINITY;
+            Move bestMove = null;
+            for (Move move : board.legalMoves()) {
+                board.doMove(move);
+                MinimaxResult result = minimax(board, depth - 1, true, alpha, beta);
+                board.undoMove();
+
+                if (result.score < minEval) {
+                    minEval = result.score;
+                    bestMove = move;
+                }
+                beta = Math.min(result.score, beta);
+                if(beta <= alpha){
+                    break;
+                }
+            }
+            return new MinimaxResult(minEval, bestMove);
+        }
     }
 
-    if (maximizingPlayer) {
-        double maxEval = MINUS_INFINITY;
-        Move bestMove = null;
-        for (Move move : board.legalMoves()) {
-            board.doMove(move);
-            MinimaxResult result = minimax(board, depth - 1, false);
-            board.undoMove();
-
-            if (result.score > maxEval) {
-                maxEval = result.score;
-                bestMove = move;
-            }
-        }
-        return new MinimaxResult(maxEval, bestMove);
-    } else {
-        double minEval = INFINITY;
-        Move bestMove = null;
-        for (Move move : board.legalMoves()) {
-            board.doMove(move);
-            MinimaxResult result = minimax(board, depth - 1, true);
-            board.undoMove();
-
-            if (result.score < minEval) {
-                minEval = result.score;
-                bestMove = move;
-            }
-        }
-        return new MinimaxResult(minEval, bestMove);
-    }
-}
-    public static double evaluate(Board board){
+    public static double evaluate(Board board) {
         Piece[] pieces = board.boardToArray();
         int whiteScore = 0;
         int blackScore = 0;
