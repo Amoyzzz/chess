@@ -9,11 +9,13 @@ public class AthenaEngine {
     public static void main(String[] args) {
         Board board = new Board();
         Scanner in = new Scanner(System.in);
-        System.out.println(board);
-        //evaluate(board);
         while (true) {
             System.out.println(board);
             System.out.println(evaluate(board));
+            System.out.println("\n\n");
+            board.doMove(in.nextLine());
+            System.out.println("\n\n");
+            
             if (board.isDraw()) {
                 System.out.println("DRAW");
                 break;
@@ -22,10 +24,10 @@ public class AthenaEngine {
                 System.out.println("CHECKMATE");
                 break;
             }
-            System.out.println("\n\n");
-            //try{Thread.sleep(500);}catch(InterruptedException e){}
-            board.doMove(board.legalMoves().get((int)(Math.random() * board.legalMoves().size())));
+            board.doMove(minimax(board, 4, false).bestMove);
         }
+
+        in.close();
     }
     
 public static MinimaxResult minimax(Board board, int depth, boolean maximizingPlayer) {
@@ -85,7 +87,7 @@ public static MinimaxResult minimax(Board board, int depth, boolean maximizingPl
                     whiteScore += 330;
                 }
                 else if(p.getPieceType() == PieceType.KNIGHT){
-                    whiteScore += 320;
+                    whiteScore += 300;
                 }
                 else if(p.getPieceType() == PieceType.PAWN){
                     whiteScore += 100;
@@ -105,13 +107,25 @@ public static MinimaxResult minimax(Board board, int depth, boolean maximizingPl
                     blackScore += 330;
                 }
                 else if(p.getPieceType() == PieceType.KNIGHT){
-                    blackScore += 320;
+                    blackScore += 300;
                 }
                 else if(p.getPieceType() == PieceType.PAWN){
                     blackScore += 100;
                 }
             }
         }
-        return whiteScore - blackScore;
+        if(board.isMated()){
+            if(board.getSideToMove() == Side.WHITE){
+                return MINUS_INFINITY;
+            }
+            else{
+                return INFINITY;
+            }
+        }
+        if(board.isDraw()){
+            return 0;
+        }
+        double eval = (blackScore - whiteScore);
+        return eval;
     }
 }
