@@ -9,7 +9,6 @@ public class AthenaEngine {
     public static void main(String[] args) {
         Board board = new Board();
         Scanner in = new Scanner(System.in);
-        System.out.println(board);
         while (true) {
             System.out.println(board);
             System.out.println("Evaluation: " + evaluate(board));
@@ -29,6 +28,7 @@ public class AthenaEngine {
             System.out.println("Chosen move: " + result.bestMove);
             board.doMove(result.bestMove);
         }
+
         in.close();
     }
     
@@ -98,7 +98,7 @@ public class AthenaEngine {
                     whiteScore += 330;
                 }
                 else if(p.getPieceType() == PieceType.KNIGHT){
-                    whiteScore += 320;
+                    whiteScore += 300;
                 }
                 else if(p.getPieceType() == PieceType.PAWN){
                     whiteScore += 100;
@@ -118,13 +118,25 @@ public class AthenaEngine {
                     blackScore += 330;
                 }
                 else if(p.getPieceType() == PieceType.KNIGHT){
-                    blackScore += 320;
+                    blackScore += 300;
                 }
                 else if(p.getPieceType() == PieceType.PAWN){
                     blackScore += 100;
                 }
             }
         }
-        return whiteScore - blackScore;
+        if(board.isMated()){
+            if(board.getSideToMove() == Side.WHITE){
+                return MINUS_INFINITY;
+            }
+            else{
+                return INFINITY;
+            }
+        }
+        if(board.isDraw()){
+            return 0;
+        }
+        double eval = (blackScore - whiteScore);
+        return eval;
     }
 }
