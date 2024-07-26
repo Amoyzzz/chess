@@ -23,3 +23,4 @@ with a depth of 24 in breakneck speed.
 
 
 Developed by @Amoyzzz, @Endqrmqn, and @NicholasIGuess
+Uses [bhlangonijr/chesslib](github.com/bhlangonijr/chesslib) for backend move generation.
