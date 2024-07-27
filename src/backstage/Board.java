@@ -16,6 +16,12 @@ package backstage;
  * limitations under the License.
  */
 
+ import backstage.game.GameContext;
+ import backstage.move.Move;
+ import backstage.move.MoveGenerator;
+ import backstage.move.MoveGeneratorException;
+ import backstage.move.MoveList;
+ import backstage.util.XorShiftRandom;
  import java.util.ArrayList;
  import java.util.Arrays;
  import java.util.Collections;
@@ -25,13 +31,6 @@ package backstage;
  import java.util.concurrent.CopyOnWriteArrayList;
  import java.util.function.Supplier;
  import java.util.stream.IntStream;
- 
- import backstage.game.GameContext;
- import backstage.move.Move;
- import backstage.move.MoveGenerator;
- import backstage.move.MoveGeneratorException;
- import backstage.move.MoveList;
- import backstage.util.XorShiftRandom;
  
  /**
   * The definition of a chessboard position and its status. It exposes methods to manipulate the board, evolve the
@@ -1509,8 +1508,9 @@ package backstage;
  
          return MoveGenerator.generateLegalMoves(this);
      }
- 
-     /**
+
+
+    /**
       * Returns the list of all possible pseudo-legal moves for the current position.
       * <p>
       * A move is considered pseudo-legal when it is legal according to the standard rules of chess piece movements, but

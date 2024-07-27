@@ -35,6 +35,10 @@ public class Move implements BoardEvent {
     private final Piece promotion;
     private String san;
 
+    private int score;
+
+    
+
     /**
      * Creates a new move, using its origin and destination squares.
      * <p>
@@ -181,6 +185,14 @@ public class Move implements BoardEvent {
      */
     public void setSan(String san) {
         this.san = san;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 
 }

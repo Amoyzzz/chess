@@ -5,6 +5,7 @@ import backstage.Side;
 import backstage.move.Move;
 import java.util.Scanner;
 
+
 public class AthenaEngine {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
@@ -20,7 +21,7 @@ public class AthenaEngine {
     }
     public static void main(String[] args) {
         Board board = new Board();
-        board.loadFromFen("3k4/8/8/3KR3/8/8/8/8 w - - 0 1"); //Input FEN here
+        board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); //Input FEN here
         bestMove = null;
         try (Scanner in = new Scanner(System.in)) {
             initTables();
@@ -28,7 +29,7 @@ public class AthenaEngine {
             while (true) {
                 // Print the board from the black viewpoint and the evaluation
                 System.out.println(board.toStringFromBlackViewPoint());
-                System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
+                //System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
                 System.out.println("\n\n");
                 
                 // Check for end-of-game conditions
@@ -42,14 +43,18 @@ public class AthenaEngine {
                 }
                 
                 // Get and execute the best move from the AI (maximizing player)
+                double starttime = System.currentTimeMillis();
                 search(board, DEPTH_USED);
                 System.out.println("Legal moves: " + board.legalMoves());
                 System.out.println("Chosen move: " + bestMove);
                 board.doMove(bestMove);
+                double elapsedTime = System.currentTimeMillis() - starttime;
+                double elapsedSeconds = elapsedTime / 1000;
+                System.out.println(elapsedSeconds);
                 
                 // Print the board after the AI's move
                 System.out.println(board.toStringFromBlackViewPoint());
-                System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
+                //System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
                 System.out.println("\n\n");
                 
                 // Check for end-of-game conditions
@@ -78,7 +83,7 @@ public class AthenaEngine {
             }
             count++;
             board.doMove(move);
-            double result = -minimax(board, depth - 1, true, -INFINITY, INFINITY);
+            double result = -minimax(board, depth - 1, true, -INFINITY, INFINITY, move);
             board.undoMove();
             System.out.println(move + " -> " + result);
 
@@ -90,16 +95,16 @@ public class AthenaEngine {
         return maxEval;
     }
 
-    public static double minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta) {
+    public static double minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta, Move testMove) {
         if (depth == 0 || board.isMated() || board.isDraw()) {
-            return eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, DEPTH_USED - depth);
+            return eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, DEPTH_USED - depth, testMove);
         }
 
         if (maximizingPlayer) {
             double maxEval = -INFINITY;
             for (Move move : board.legalMoves()) {
                 board.doMove(move);
-                double result = minimax(board, depth - 1, false, alpha, beta);
+                double result = minimax(board, depth - 1, false, alpha, beta, testMove);
                 board.undoMove();
 
                 if (result > maxEval) {
@@ -115,7 +120,7 @@ public class AthenaEngine {
             double minEval = INFINITY;
             for (Move move : board.legalMoves()) {
                 board.doMove(move);
-                double result = minimax(board, depth - 1, true, alpha, beta);
+                double result = minimax(board, depth - 1, true, alpha, beta, testMove);
                 board.undoMove();
 
                 if (result < minEval) {
@@ -130,7 +135,7 @@ public class AthenaEngine {
         }
     }
 
-    public static double eval(Board board, int sideToMove, int movesPlayed) {
+    public static double eval(Board board, int sideToMove, int movesPlayed, Move testMove) {
         if (board.isMated() && sideToMove == 1) {
             //System.out.println("found a mate");
             return -INFINITY / 10 + movesPlayed;
@@ -140,6 +145,7 @@ public class AthenaEngine {
             return INFINITY / 10 + movesPlayed;
         }
 
+        int moveEval = OrderMoves(board, testMove);
         int[] mg = {0, 0};
         int[] eg = {0, 0};
         int gamePhase = 0;
@@ -175,7 +181,7 @@ public class AthenaEngine {
         int egScore = eg[sideToMove] - eg[1 - sideToMove];
         double finalScore = (mgScore * gamePhase + egScore * (24 - gamePhase)) / 24;
         
-        return -(finalScore - movesPlayed);
+        return -(finalScore - movesPlayed - moveEval);
     }
 
     private static final int[] mgPawnTable = {
@@ -413,6 +419,39 @@ public class AthenaEngine {
         // QUEEN
         // KING
     }
+    private static int getPieceValueReal(Piece piece) {
+        return switch (piece.getFenSymbol()) {
+            case "P" -> 94;
+            case "N" -> 281;
+            case "B" -> 297;
+            case "R" -> 512;
+            case "Q" -> 936;
+            case "K" -> 0;
+            case "." -> 0;
+            default -> 0;
+        };
+    }
+    private static int OrderMoves(Board board, Move move) {
+        int moveScoreGuess = 0;
+
+        int movePieceType = getPieceValueReal(board.getPiece(move.getFrom()));
+        int capturePieceType = getPieceValueReal(board.getPiece(move.getTo()));
+
+        // Prioritize capturing opponent's most valuable pieces with our least valuable pieces
+        if (capturePieceType != getPieceValueReal(Piece.NONE)) {
+            moveScoreGuess = 10 * capturePieceType - movePieceType;
+        }
+
+        // Promoting a pawn is likely to be good
+        if (move.getPromotion() != Piece.NONE) {
+            moveScoreGuess += 100; // Assuming a high value for promotion
+        }
+
+        // Other scoring logic can be added here
+
+        return moveScoreGuess;
+    }
+
 
     private static int forceKingToCornerEndgameEval(int kingSquare, int oppponentKingSquare, int gamePhase) {
         int evaluation = 0;
