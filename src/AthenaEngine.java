@@ -18,11 +18,10 @@ public class AthenaEngine {
         System.out.println(evaluate());
     }
     public static void main(String[] args) {
-        testEval();
-        // //Board board = new Board();
-        // //board.loadFromFen("4k3/8/8/8/8/4KQQ1/8/8 w - - 0 1"); //Input FEN here
-        // Scanner in = new Scanner(System.in);
-        // //initializeTables();
+        Board board = new Board();
+        board.loadFromFen("4k3/8/8/8/8/4KQQ1/8/8 w - - 0 1"); //Input FEN here
+        Scanner in = new Scanner(System.in);
+        initTables();
     
         // while (true) {
         //     // Print the board from the black viewpoint and the evaluation
@@ -37,13 +36,15 @@ public class AthenaEngine {
         //         break;
         //     }
     
-        //     // Get and execute the best move from the AI (maximizing player)
-        //     int eval = search(4, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        //     System.out.println(eval);
-        //     //automatically plays move
-        //     // Print the board after the AI's move
-        //     System.out.println(board.toStringFromBlackViewPoint());
-        //     System.out.println("\n\n");
+            // Get and execute the best move from the AI (maximizing player)
+            MinimaxResult result = minimax(board, 4, true, MINUS_INFINITY, INFINITY);
+            System.out.println("Chosen move: " + result.bestMove);
+            board.doMove(result.bestMove);
+    
+            // Print the board after the AI's move
+            System.out.println(board.toStringFromBlackViewPoint());
+            System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1));
+            System.out.println("\n\n");
     
         //     // Check for end-of-game conditions
         //     if (board.isDraw()) {
@@ -270,145 +271,156 @@ public class AthenaEngine {
         -15, 36, 12, -54, 8, -28, 24, 14
     };
 
-    private static final int[] egKingTable = {
-        -74, -35, -18, -18, -11, 15, 4, -17,
-        -12, 17, 14, 17, 17, 38, 23, 11,
-        10, 17, 23, 15, 20, 45, 44, 13,
-        -8, 22, 24, 27, 26, 33, 26, 3,
-        -18, -4, 21, 24, 27, 23, 9, -11,
-        -19, -3, 11, 21, 23, 16, 7, -9,
-        -27, -11, 4, 13, 14, 4, -5, -17,
-        -53, -34, -21, -11, -28, -14, -24, -43
-    };
+   private static final int[] egKingTable = {
+       -74, -35, -18, -18, -11,  15,   4, -17,
+       -12,  17,  14,  17,  17,  38,  23,  11,
+       10,  17,  23,  15,  20,  45,  44,  13,
+       -8,  22,  24,  27,  26,  33,  26,   3,
+       -18,  -4,  21,  24,  27,  23,   9,  -11,
+       -19,  -3,  11,  21,  23,  16,   7,  -9,
+       -27,  -11,   4,  13,  14,   4,  -5, -17,
+       -53,  -34, -21,  -11, -28, -14, -24, -43
+   };
 
-    static {
-        initializeTables();
-    }
+   // Placeholder arrays for the tables
+   private static int[][][] mgPestoTable = new int[2][6][64];
+   private static int[][][] egPestoTable = new int[2][6][64];
+   
+   public static void initTables() {
+       for (int i = 0; i < 64; i++) {
+           mgPestoTable[0][0][i] = mgPawnTable[i];
+           mgPestoTable[0][1][i] = mgKnightTable[i];
+           mgPestoTable[0][2][i] = mgBishopTable[i];
+           mgPestoTable[0][3][i] = mgRookTable[i];
+           mgPestoTable[0][4][i] = mgQueenTable[i];
+           mgPestoTable[0][5][i] = mgKingTable[i];
+           mgPestoTable[1][0][i] = mgPawnTable[mirror(i)];
+           mgPestoTable[1][1][i] = mgKnightTable[mirror(i)];
+           mgPestoTable[1][2][i] = mgBishopTable[mirror(i)];
+           mgPestoTable[1][3][i] = mgRookTable[mirror(i)];
+           mgPestoTable[1][4][i] = mgQueenTable[mirror(i)];
+           mgPestoTable[1][5][i] = mgKingTable[mirror(i)];
 
-    private static void initializeTables() {
-        initializePieceTable(PAWN, mgPawnTable, egPawnTable);
-        initializePieceTable(KNIGHT, mgKnightTable, egKnightTable);
-        initializePieceTable(BISHOP, mgBishopTable, egBishopTable);
-        initializePieceTable(ROOK, mgRookTable, egRookTable);
-        initializePieceTable(QUEEN, mgQueenTable, egQueenTable);
-        initializePieceTable(KING, mgKingTable, egKingTable);
-    }
+           egPestoTable[0][0][i] = egPawnTable[i];
+           egPestoTable[0][1][i] = egKnightTable[i];
+           egPestoTable[0][2][i] = egBishopTable[i];
+           egPestoTable[0][3][i] = egRookTable[i];
+           egPestoTable[0][4][i] = egQueenTable[i];
+           egPestoTable[0][5][i] = egKingTable[i];
+           egPestoTable[1][0][i] = egPawnTable[mirror(i)];
+           egPestoTable[1][1][i] = egKnightTable[mirror(i)];
+           egPestoTable[1][2][i] = egBishopTable[mirror(i)];
+           egPestoTable[1][3][i] = egRookTable[mirror(i)];
+           egPestoTable[1][4][i] = egQueenTable[mirror(i)];
+           egPestoTable[1][5][i] = egKingTable[mirror(i)];
+       }
+   }
 
-    private static void initializePieceTable(int piece, int[] mgTableData, int[] egTableData) {
-        for (int sq = 0; sq < 64; sq++) {
-            int flipSq = (piece == PAWN) ? sq : flipSquare(sq);
-            mgTable[piece][sq] = mgTableData[flipSq];
-            egTable[piece][sq] = egTableData[flipSq];
-            mgTable[piece + 6][sq] = -mgTableData[flipSq];
-            egTable[piece + 6][sq] = -egTableData[flipSq];
+   private static int mirror(int square) {
+       return (square ^ 0x38);
+   }
+   public static int getPieceValue(String fen) {
+       switch (fen.toUpperCase()) {
+           case "P":
+               return 0;
+           case "N":
+               return 1;
+           case "B":
+               return 2;
+           case "R":
+               return 3;
+           case "Q":
+               return 4;
+           case "K":
+               return 5;
+           default:
+               return -1;
+       }
+   }
+   public static double eval(Board board, int sideToMove) {
+        if (board.isMated() && sideToMove == 0) {
+           return -INFINITY;
         }
-    }
-
-    private static int flipSquare(int sq) {
-        return ((sq / 8) * 8) + (7 - (sq % 8));
-    }
-
-    private static int pieceTypeToIndex(PieceType type) {
-        switch (type) {
-            case PAWN -> {
-                return 0;
-            }
-            case KNIGHT -> {
-                return 1;
-            }
-            case BISHOP -> {
-                return 2;
-            }
-            case ROOK -> {
-                return 3;
-            }
-            case QUEEN -> {
-                return 4;
-            }
-            case KING -> {
-                return 5;
-            }
-            default -> throw new IllegalArgumentException("Unknown piece type");
+        else if(board.isDraw()){
+           return 0;
         }
-    }
-
-    public static int evaluate() {
-        if (board.isMated()) {
-            System.out.println("CHECKMATE LOL!!! ");
-            // Checkmate condition
-            if (board.getSideToMove() == Side.WHITE) {
-                return Integer.MAX_VALUE; // White is checkmated
-            } else {
-                return Integer.MIN_VALUE; // Black is checkmated
-            }
+        else if (board.isMated() && sideToMove == 1) {
+            return INFINITY;
         }
-
-        if(board.isDraw()){
-            return 0;
-        }
-        int[] mg = new int[2];
-        int[] eg = new int[2];
+        int[] mg = {0, 0};
+        int[] eg = {0, 0};
         int gamePhase = 0;
+        int beginSquare = 0;
 
-        // Initialize mg and eg for each color
-        mg[WHITE] = 0;
-        mg[BLACK] = 0;
-        eg[WHITE] = 0;
-        eg[BLACK] = 0;
+        int friendlyKingSquare = 0;
+        int opponentKingSquare = 0;
+        for (Piece piece : board.boardToArray()) {
+            if (piece.getFenSymbol().equals(".")) {
+                beginSquare++;
+                continue;
+            }
+            int color = piece.getPieceSide() == Side.WHITE ? 0 : 1;
+            int pieceType = getPieceValue(piece.getFenSymbol());
+            int sq = beginSquare;
+            beginSquare++;
+            int mgValue = mgValue(pieceType);
+            int egValue = egValue(pieceType);
+            mg[color] += mgValue + mgPestoTable[color][pieceType][sq];
+            eg[color] += egValue + egPestoTable[color][pieceType][sq];
+            gamePhase += gamePhaseInc(pieceType);
 
-        // Get the pieces from the board
-        Piece[] pieces = board.boardToArray();
-
-        // Evaluate each piece
-        for (int sq = 0; sq < 64; ++sq) {
-            Piece piece = pieces[sq];
-            if (piece != null) {
-                PieceType type = piece.getPieceType();
-                Side side = piece.getPieceSide();
-                
-                if (type != null && side != null) {
-                    int color = (side == Side.WHITE) ? 0 : 1;
-                    int pieceIndex = pieceTypeToIndex(type);
-                    mg[color] += mgTable[pieceIndex][sq];
-                    eg[color] += egTable[pieceIndex][sq];
-                    gamePhase += gamephaseInc[pieceIndex];
-                }
+            if(piece.getPieceType() == PieceType.KING && color == sideToMove) {
+                friendlyKingSquare = beginSquare;
+            }
+            if(piece.getPieceType() == PieceType.KING && color != sideToMove) {
+                opponentKingSquare = beginSquare;
             }
         }
-
-        // Compute the tapered evaluation
-        int mgScore = mg[WHITE] - mg[BLACK];
-        int egScore = eg[WHITE] - eg[BLACK];
-        int mgPhase = Math.min(gamePhase, 24);
-        int egPhase = 24 - mgPhase;
-        return (mgScore * mgPhase + egScore * egPhase) / 24;
+        eg[sideToMove] += forceKingToCornerEndgameEval(board, friendlyKingSquare, opponentKingSquare, gamePhase);
+        
+        int mgScore = mg[sideToMove] - mg[1 - sideToMove];
+        int egScore = eg[sideToMove] - eg[1 - sideToMove];
+        double finalScore = (mgScore * gamePhase + egScore * (24 - gamePhase)) / 24;
+        
+        return finalScore;
     }
 
-    private static int forceKingToCornerEndgameEval(Board board, int kingSquare, int oppponentKingSquare, int gamePhase) {
-        Piece[] pieces = board.boardToArray();
-        int evaluation = 0;
+    private static int mgValue(int pieceType) {
+        // Return the middle game value of the piece type
+        switch (pieceType) {
+            case 0: return 82;   // PAWN
+            case 1: return 337;  // KNIGHT
+            case 2: return 365;  // BISHOP
+            case 3: return 477;  // ROOK
+            case 4: return 1025; // QUEEN
+            case 5: return 0;    // KING
+            default: return 0;
+        }
+    }
 
-        int opponentKingRank = (int)(kingSquare/8);
-        int opponentKingFile = (kingSquare%8); 
-    
-        int opponentKingDstToCenterFile = Math.max(3 - opponentKingFile, opponentKingFile - 4);
-        int opponentKingDstToCenterRank = Math.max(3 - opponentKingRank, opponentKingRank - 4);
-        int opponentKingDstFromCenter = opponentKingDstToCenterFile + opponentKingDstToCenterRank;
-        evaluation += opponentKingDstFromCenter;
-        
+    private static int egValue(int pieceType) {
+        // Return the end game value of the piece type
+        switch (pieceType) {
+            case 0: return 94;   // PAWN
+            case 1: return 281;  // KNIGHT
+            case 2: return 297;  // BISHOP
+            case 3: return 512;  // ROOK
+            case 4: return 936;  // QUEEN
+            case 5: return 0;    // KING
+            default: return 0;
+        }
+    }
 
-        int friendlyKingRank = (int)(oppponentKingSquare/8); //we need a position to rank function
-        int friendlyKingFile = (oppponentKingSquare%8); //we need a position to file function
-
-        
-        int KingsFileDst = Math.abs(friendlyKingFile - opponentKingFile);
-        int KingsRankDst = Math.abs(friendlyKingRank - opponentKingRank);
-        int totalDst = KingsRankDst + KingsFileDst;
-
-
-        evaluation += 14 - totalDst;
-        
-        return (int)(evaluation * 10 * (1/gamePhase));
-
+    private static int gamePhaseInc(int pieceType) {
+        // Return the game phase increment value for the piece type
+        switch (pieceType) {
+            case 0: return 0;   // PAWN
+            case 1: return 1;   // KNIGHT
+            case 2: return 1;   // BISHOP
+            case 3: return 2;   // ROOK
+            case 4: return 4;   // QUEEN
+            case 5: return 0;   // KING
+            default: return 0;
+        }
     }
 }
