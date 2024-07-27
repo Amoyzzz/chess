@@ -16,12 +16,17 @@
 
 Version 1_EngineBase
 
-Welcome to Athena! The world's best chess engine.
-
-Using a Minimax algorithm which is pruned using an Alpha-Beta pruner, Athena delivers the best chess moves
-with a depth of 24 in breakneck speed. 
+Welcome to Athena, a free chess engine made to quickly and efficiently defeat human players and other chess engines. 
 
 
 Developed by @Amoyzzz, @Endqrmqn, and @NicholasIGuess.
 
 Uses [bhlangonijr/chesslib](github.com/bhlangonijr/chesslib) for backend move generation.
+
+
+
+Increase Search Depth (increase to a depth of 20+)
+
+dynamic heatmaps 
+
+chessUCI

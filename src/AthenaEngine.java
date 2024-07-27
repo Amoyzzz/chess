@@ -1,6 +1,6 @@
-import java.util.*;
 import backstage.*;
 import backstage.move.*;
+import java.util.*;
 
 public class AthenaEngine {
     private static final double INFINITY = 100000000000.0;
@@ -16,6 +16,7 @@ public class AthenaEngine {
     }
     public static void main(String[] args) {
         Board board = new Board();
+        board.loadFromFen("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
         Scanner in = new Scanner(System.in);
         initTables();
     
@@ -36,7 +37,7 @@ public class AthenaEngine {
             }
     
             // Get and execute the best move from the AI (maximizing player)
-            MinimaxResult result = minimax(board, 5, true, MINUS_INFINITY, INFINITY);
+            MinimaxResult result = minimax(board, 6, true, MINUS_INFINITY, INFINITY);
             System.out.println("Chosen move: " + result.bestMove);
             board.doMove(result.bestMove);
     
