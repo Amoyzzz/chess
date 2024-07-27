@@ -1,5 +1,3 @@
-import java.util.Scanner;
-
 import backstage.Board;
 import backstage.Piece;
 import backstage.PieceType;
@@ -9,64 +7,78 @@ import backstage.move.Move;
 public class AthenaEngine {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
-    private static final int DEPTH_USED = 6;
+    private static final int DEPTH_USED = 4;
     public static void testEval(){
-        String fen = "r1bqkbnr/ppppppp1/8/7p/1nBPP3/5Q2/PPP2PPP/RNB1K1NR w KQkq - 4 5";
+        String fen = "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4";
         Board board = new Board();
         board.loadFromFen(fen);
         initTables();
         System.out.println(board);
+        System.out.println(board.legalMoves());
 
         //System.out.println(eval(board, 0), 0);
     }
-    public static void main(String[] args) {
-        Board board = new Board();
-        board.loadFromFen("4k3/8/8/8/8/4K1Q1/8/8 w - - 1 1"); //Input FEN here
-        bestMove = null;
-        try (Scanner in = new Scanner(System.in)) {
-            initTables();
+    public static void main(String[] args) throws InterruptedException{
+        testEval();
+        // Board board = new Board();
+        // //board.loadFromFen("r3k3/ppp2p1p/3b4/1q5b/3p2r1/1P2P3/PBPP1P1P/R2QR2K w - - 0 1"); //Input FEN here
+        // bestMove = null;
+        // System.out.println(board);
+        // try (Scanner in = new Scanner(System.in)) {
+        //     initTables();
             
-            while (true) {
-                // Print the board from the black viewpoint and the evaluation
-                System.out.println(board.toStringFromBlackViewPoint());
-                System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
-                System.out.println("\n\n");
+        //     while (true) {
+        //         // Print the board from the black viewpoint and the evaluation
+        //         // System.out.println(board.toStringFromBlackViewPoint());
+        //         // System.out.println("Evaluation: " + minimax(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
+        //         // System.out.println("\n\n");
                 
-                // Check for end-of-game conditions
-                if (board.isDraw()) {
-                    System.out.println("DRAW");
-                    break;
-                }
-                if (board.isMated()) {
-                    System.out.println("CHECKMATE");
-                    break;
-                }
+        //         // Check for end-of-game conditions
+        //         if (board.isDraw()) {
+        //             System.out.println("DRAW");
+        //             System.out.println(board.getFen());
+        //             break;
+        //         }
+        //         if (board.isMated()) {
+        //             System.out.println("CHECKMATE");
+        //             System.out.println(board.getFen());
+        //             break;
+        //         }
                 
-                // Get and execute the best move from the AI (maximizing player)
-                search(board, DEPTH_USED);
-                System.out.println("Legal moves: " + board.legalMoves());
-                System.out.println("Chosen move: " + bestMove);
-                board.doMove(bestMove);
+        //         // Get and execute the best move from the AI (maximizing player)
+        //         search(board, DEPTH_USED);
+        //         System.out.println("Legal moves: " + board.legalMoves());
+        //         System.out.println("Chosen move: " + bestMove);
+        //         board.doMove(bestMove);
                 
-                // Print the board after the AI's move
-                System.out.println(board.toStringFromBlackViewPoint());
-                System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
-                System.out.println("\n\n");
+        //         // Print the board after the AI's move
+        //         System.out.println(board.toStringFromBlackViewPoint());
+        //         System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
+        //         System.out.println("\n\n");
                 
-                // Check for end-of-game conditions
-                if (board.isDraw()) {
-                    System.out.println("DRAW");
-                    break;
-                }
-                if (board.isMated()) {
-                    System.out.println("CHECKMATE");
-                    break;
-                }
+        //         // Check for end-of-game conditions
+        //         if (board.isDraw()) {
+        //             System.out.println("DRAW");
+        //             break;
+        //         }
+        //         if (board.isMated()) {
+        //             System.out.println("CHECKMATE");
+        //             break;
+        //         }
                 
-                // Get and execute the player's move (minimizing player)
-                board.doMove(in.nextLine());
-            }
-        }
+        //         search(board, DEPTH_USED);
+        //         System.out.println("Legal moves: " + board.legalMoves());
+        //         board.doMove(bestMove);
+                
+        //         // Print the board after the AI's move
+        //         System.out.println(board);
+        //         System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
+        //         System.out.println("\n\n");
+
+        //         //Thread.sleep(500);
+        //     }
+        // }
+        
     }
     
     public static double search(Board board, int depth) {
@@ -81,7 +93,7 @@ public class AthenaEngine {
             board.doMove(move);
             double result = -minimax(board, depth - 1, true, -INFINITY, INFINITY);
             board.undoMove();
-            System.out.println(move + " -> " + result);
+            //System.out.println(move + " -> " + result);
 
             if (result > maxEval) {
                 maxEval = result;
@@ -107,7 +119,7 @@ public class AthenaEngine {
                     maxEval = result;
                 }
                 alpha = Math.max(alpha, result);
-                if(beta < alpha){
+                if(beta <= alpha){
                     break;
                 }
             }
@@ -123,7 +135,7 @@ public class AthenaEngine {
                     minEval = result;
                 }
                 beta = Math.min(result, beta);
-                if(beta < alpha){
+                if(beta <= alpha){
                     break;
                 }
             }
@@ -132,12 +144,12 @@ public class AthenaEngine {
     }
 
     public static double eval(Board board, int sideToMove, int movesPlayed) {
-        if (board.isMated() && sideToMove == 1) {
+        if (board.isMated() && sideToMove != (board.getSideToMove() == Side.WHITE ? 0 : 1)) {
             //System.out.println("found a mate");
             return -INFINITY / 10 + movesPlayed;
         } else if(board.isDraw()){
             return 0;
-        } else if (board.isMated() && sideToMove == 0) {
+        } else if (board.isMated() && sideToMove == (board.getSideToMove() == Side.WHITE ? 0 : 1)) {
             return INFINITY / 10 + movesPlayed;
         }
 
@@ -437,7 +449,9 @@ public class AthenaEngine {
 
 
         evaluation += 14 - totalDst;
-        
+        if(gamePhase == 0){
+            return evaluation * 10 * 10;
+        }
         return (int)(evaluation * 10 * (1/gamePhase));
     }
 }
