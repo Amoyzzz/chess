@@ -1,12 +1,13 @@
-import backstage.*;
-import backstage.move.*;
 import java.util.List;
 
-public class AthenaEngine {
-    private static final double INFINITY = 100000000000.0;
-    private static final double MINUS_INFINITY = -100000000000.0;
+import backstage.Board;
+import backstage.Piece;
+import backstage.PieceType;
+import backstage.Side;
+import backstage.move.Move;
 
-    private static Board board = new Board();
+public class AthenaEngine {
+    private final static Board board = new Board();
     public static void testEval(){
         String fen = "5k2/1Q6/8/8/8/4K1Q1/8/8 w - - 0 1";
         //Board board = new Board();
@@ -14,11 +15,11 @@ public class AthenaEngine {
         //initializeTables();
         System.out.println(board);
 
-        System.out.println(search(4, Integer.MIN_VALUE, Integer.MAX_VALUE));
+        System.out.println(evaluate());
     }
     public static void main(String[] args) {
         testEval();
-        // //oard board = new Board();
+        // //Board board = new Board();
         // //board.loadFromFen("4k3/8/8/8/8/4KQQ1/8/8 w - - 0 1"); //Input FEN here
         // Scanner in = new Scanner(System.in);
         // //initializeTables();
@@ -111,7 +112,7 @@ public class AthenaEngine {
         }
         List<Move> moves = board.legalMoves();
 
-        if(moves.size() == 0){
+        if(moves.isEmpty()){
             if(board.isKingAttacked()){
                 return Integer.MIN_VALUE;
             }
@@ -141,11 +142,6 @@ public class AthenaEngine {
 
     private static final int WHITE = 0;
     private static final int BLACK = 1;
-
-    private static final int EMPTY = 13;
-
-    private static final int[] mgValue = { 82, 337, 365, 477, 1025, 0 };
-    private static final int[] egValue = { 94, 281, 297, 512, 936, 0 };
 
     private static final int[] gamephaseInc = {0, 0, 1, 1, 1, 1, 2, 2, 4, 4, 0, 0};
 
