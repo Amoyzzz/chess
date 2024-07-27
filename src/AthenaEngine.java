@@ -296,13 +296,13 @@ public class AthenaEngine {
        }
    }
    public static double eval(Board board, int sideToMove) {
-        if (board.isMated() && sideToMove == 0) {
+        if (board.isMated() && sideToMove == 1) {
            return -INFINITY;
         }
         else if(board.isDraw()){
            return 0;
         }
-        else if (board.isMated() && sideToMove == 1) {
+        else if (board.isMated() && sideToMove == 0) {
             return INFINITY;
         }
         int[] mg = {0, 0};
