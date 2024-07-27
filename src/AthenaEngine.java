@@ -16,7 +16,7 @@ public class AthenaEngine {
     }
     public static void main(String[] args) {
         Board board = new Board();
-        board.loadFromFen("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
+        board.loadFromFen("4k3/8/8/8/8/4KQQ1/8/8 w - - 0 1"); //Input FEN here
         Scanner in = new Scanner(System.in);
         initTables();
     
@@ -37,7 +37,7 @@ public class AthenaEngine {
             }
     
             // Get and execute the best move from the AI (maximizing player)
-            MinimaxResult result = minimax(board, 6, true, MINUS_INFINITY, INFINITY);
+            MinimaxResult result = minimax(board, 4, true, MINUS_INFINITY, INFINITY);
             System.out.println("Chosen move: " + result.bestMove);
             board.doMove(result.bestMove);
     
@@ -243,7 +243,7 @@ public class AthenaEngine {
    // Placeholder arrays for the tables
    private static int[][][] mgPestoTable = new int[2][6][64];
    private static int[][][] egPestoTable = new int[2][6][64];
-
+   
    public static void initTables() {
        for (int i = 0; i < 64; i++) {
            mgPestoTable[0][0][i] = mgPawnTable[i];
@@ -296,38 +296,52 @@ public class AthenaEngine {
        }
    }
    public static double eval(Board board, int sideToMove) {
-       if (board.isMated()) {
+        if (board.isMated() && sideToMove == 0) {
            return -INFINITY;
-       }
-       else if(board.isDraw()){
+        }
+        else if(board.isDraw()){
            return 0;
-       }
-       int[] mg = {0, 0};
-       int[] eg = {0, 0};
-       int gamePhase = 0;
-       int beginSquare = 0;
-       for (Piece piece : board.boardToArray()) {
-           if (piece.getFenSymbol().equals(".")) {
+        }
+        else if (board.isMated() && sideToMove == 1) {
+            return INFINITY;
+        }
+        int[] mg = {0, 0};
+        int[] eg = {0, 0};
+        int gamePhase = 0;
+        int beginSquare = 0;
+
+        int friendlyKingSquare = 0;
+        int opponentKingSquare = 0;
+        for (Piece piece : board.boardToArray()) {
+            if (piece.getFenSymbol().equals(".")) {
                 beginSquare++;
                 continue;
-           }
-           int color = piece.getPieceSide() == Side.WHITE ? 0 : 1;
-           int pieceType = getPieceValue(piece.getFenSymbol());
-           int sq = beginSquare;
-           beginSquare++;
-           int mgValue = mgValue(pieceType);
-           int egValue = egValue(pieceType);
-           mg[color] += mgValue + mgPestoTable[color][pieceType][sq];
-           eg[color] += egValue + egPestoTable[color][pieceType][sq];
-           gamePhase += gamePhaseInc(pieceType);
-       }
+            }
+            int color = piece.getPieceSide() == Side.WHITE ? 0 : 1;
+            int pieceType = getPieceValue(piece.getFenSymbol());
+            int sq = beginSquare;
+            beginSquare++;
+            int mgValue = mgValue(pieceType);
+            int egValue = egValue(pieceType);
+            mg[color] += mgValue + mgPestoTable[color][pieceType][sq];
+            eg[color] += egValue + egPestoTable[color][pieceType][sq];
+            gamePhase += gamePhaseInc(pieceType);
 
-       int mgScore = mg[sideToMove] - mg[1 - sideToMove];
-       int egScore = eg[sideToMove] - eg[1 - sideToMove];
-       double finalScore = (mgScore * gamePhase + egScore * (24 - gamePhase)) / 24;
-
-       return finalScore;
-   }
+            if(piece.getPieceType() == PieceType.KING && color == sideToMove) {
+                friendlyKingSquare = beginSquare;
+            }
+            if(piece.getPieceType() == PieceType.KING && color != sideToMove) {
+                opponentKingSquare = beginSquare;
+            }
+        }
+        eg[sideToMove] += forceKingToCornerEndgameEval(board, friendlyKingSquare, opponentKingSquare, gamePhase);
+        
+        int mgScore = mg[sideToMove] - mg[1 - sideToMove];
+        int egScore = eg[sideToMove] - eg[1 - sideToMove];
+        double finalScore = (mgScore * gamePhase + egScore * (24 - gamePhase)) / 24;
+        
+        return finalScore;
+    }
 
     private static int mgValue(int pieceType) {
         // Return the middle game value of the piece type
@@ -366,5 +380,33 @@ public class AthenaEngine {
             case 5: return 0;   // KING
             default: return 0;
         }
+    }
+
+    private static int forceKingToCornerEndgameEval(Board board, int kingSquare, int oppponentKingSquare, int gamePhase) {
+        Piece[] pieces = board.boardToArray();
+        int evaluation = 0;
+
+        int opponentKingRank = (int)(kingSquare/8);
+        int opponentKingFile = (kingSquare%8); 
+    
+        int opponentKingDstToCenterFile = Math.max(3 - opponentKingFile, opponentKingFile - 4);
+        int opponentKingDstToCenterRank = Math.max(3 - opponentKingRank, opponentKingRank - 4);
+        int opponentKingDstFromCenter = opponentKingDstToCenterFile + opponentKingDstToCenterRank;
+        evaluation += opponentKingDstFromCenter;
+        
+
+        int friendlyKingRank = (int)(oppponentKingSquare/8); //we need a position to rank function
+        int friendlyKingFile = (oppponentKingSquare%8); //we need a position to file function
+
+        
+        int KingsFileDst = Math.abs(friendlyKingFile - opponentKingFile);
+        int KingsRankDst = Math.abs(friendlyKingRank - opponentKingRank);
+        int totalDst = KingsRankDst + KingsFileDst;
+
+
+        evaluation += 14 - totalDst;
+        
+        return (int)(evaluation * 10 * (1/gamePhase));
+
     }
 }
