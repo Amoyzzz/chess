@@ -1,112 +1,134 @@
 import backstage.*;
 import backstage.move.*;
-import java.util.Scanner;
+import java.util.List;
 
 public class AthenaEngine {
     private static final double INFINITY = 100000000000.0;
     private static final double MINUS_INFINITY = -100000000000.0;
+
+    private static Board board = new Board();
     public static void testEval(){
-        String fen = "rnb1k1nr/pppp2pp/4p3/2b1Q3/2B5/8/PPPPP1PP/RNBK1qNR w kq - 0 1";
-        Board board = new Board();
+        String fen = "5k2/1Q6/8/8/8/4K1Q1/8/8 w - - 0 1";
+        //Board board = new Board();
         board.loadFromFen(fen);
         //initializeTables();
         System.out.println(board);
 
-        System.out.println(evaluate(board));
+        System.out.println(search(4, Integer.MIN_VALUE, Integer.MAX_VALUE));
     }
     public static void main(String[] args) {
-        //testEval();
-        Board board = new Board();
-        board.loadFromFen("4k3/8/8/8/8/4KQQ1/8/8 w - - 0 1"); //Input FEN here
-        Scanner in = new Scanner(System.in);
-        //initializeTables();
+        testEval();
+        // //oard board = new Board();
+        // //board.loadFromFen("4k3/8/8/8/8/4KQQ1/8/8 w - - 0 1"); //Input FEN here
+        // Scanner in = new Scanner(System.in);
+        // //initializeTables();
     
-        while (true) {
-            // Print the board from the black viewpoint and the evaluation
-            System.out.println(board.toStringFromBlackViewPoint());
-            System.out.println("Evaluation: " + evaluate(board));
-            System.out.println("\n\n");
+        // while (true) {
+        //     // Print the board from the black viewpoint and the evaluation
+        //     System.out.println(board.toStringFromBlackViewPoint());    
+        //     // Check for end-of-game conditions
+        //     if (board.isDraw()) {
+        //         System.out.println("DRAW");
+        //         break;
+        //     }
+        //     if (board.isMated()) {
+        //         System.out.println("CHECKMATE");
+        //         break;
+        //     }
     
-            // Check for end-of-game conditions
-            if (board.isDraw()) {
-                System.out.println("DRAW");
-                break;
-            }
-            if (board.isMated()) {
-                System.out.println("CHECKMATE");
-                break;
-            }
+        //     // Get and execute the best move from the AI (maximizing player)
+        //     int eval = search(4, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        //     System.out.println(eval);
+        //     //automatically plays move
+        //     // Print the board after the AI's move
+        //     System.out.println(board.toStringFromBlackViewPoint());
+        //     System.out.println("\n\n");
     
-            // Get and execute the best move from the AI (maximizing player)
-            MinimaxResult result = minimax(board, 4, true, MINUS_INFINITY, INFINITY);
-            System.out.println("Chosen move: " + result.bestMove);
-            board.doMove(result.bestMove);
+        //     // Check for end-of-game conditions
+        //     if (board.isDraw()) {
+        //         System.out.println("DRAW");
+        //         break;
+        //     }
+        //     if (board.isMated()) {
+        //         System.out.println("CHECKMATE");
+        //         break;
+        //     }
     
-            // Print the board after the AI's move
-            System.out.println(board.toStringFromBlackViewPoint());
-            System.out.println("Evaluation: " + evaluate(board));
-            System.out.println("\n\n");
+        //     // Get and execute the player's move (minimizing player)
+        //     board.doMove(in.nextLine());
+        // }
     
-            // Check for end-of-game conditions
-            if (board.isDraw()) {
-                System.out.println("DRAW");
-                break;
-            }
-            if (board.isMated()) {
-                System.out.println("CHECKMATE");
-                break;
-            }
-    
-            // Get and execute the player's move (minimizing player)
-            board.doMove(in.nextLine());
-        }
-    
-        in.close();
+        // in.close();
     }
     
     
-    public static MinimaxResult minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta) {
-        if (depth == 0 || board.isMated() || board.isDraw()) {
-            return new MinimaxResult(evaluate(board), null);
+    // public static MinimaxResult minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta) {
+    //     if (depth == 0 || board.isMated() || board.isDraw()) {
+    //         return new MinimaxResult(evaluate(), null);
+    //     }
+
+    //     if (maximizingPlayer) {
+    //         double maxEval = Double.NEGATIVE_INFINITY; // Ensure correct constant for minus infinity
+    //         Move bestMove = null;
+    //         for (Move move : board.legalMoves()) {
+    //             board.doMove(move);
+    //             MinimaxResult result = minimax(board, depth - 1, false, alpha, beta);
+    //             board.undoMove();
+
+    //             if (result.score > maxEval) {
+    //                 maxEval = result.score;
+    //                 bestMove = move;
+    //             }
+    //             alpha = Math.max(alpha, result.score);
+    //             if(beta <= alpha){
+    //                 break;
+    //             }
+    //         }
+    //         return new MinimaxResult(maxEval, bestMove);
+    //     } else {
+    //         double minEval = Double.POSITIVE_INFINITY; // Ensure correct constant for positive infinity
+    //         Move bestMove = null;
+    //         for (Move move : board.legalMoves()) {
+    //             board.doMove(move);
+    //             MinimaxResult result = minimax(board, depth - 1, true, alpha, beta);
+    //             board.undoMove();
+
+    //             if (result.score < minEval) {
+    //                 minEval = result.score;
+    //                 bestMove = move;
+    //             }
+    //             beta = Math.min(result.score, beta);
+    //             if(beta <= alpha){
+    //                 break;
+    //             }
+    //         }
+    //         return new MinimaxResult(minEval, bestMove);
+    //     }
+    // }
+    public static int search(int depth, int alpha, int beta){
+        if(depth == 0){
+            return evaluate();
+        }
+        List<Move> moves = board.legalMoves();
+
+        if(moves.size() == 0){
+            if(board.isKingAttacked()){
+                return Integer.MIN_VALUE;
+            }
+            return 0;
         }
 
-        if (maximizingPlayer) {
-            double maxEval = Double.NEGATIVE_INFINITY; // Ensure correct constant for minus infinity
-            Move bestMove = null;
-            for (Move move : board.legalMoves()) {
-                board.doMove(move);
-                MinimaxResult result = minimax(board, depth - 1, false, alpha, beta);
-                board.undoMove();
-
-                if (result.score > maxEval) {
-                    maxEval = result.score;
-                    bestMove = move;
-                }
-                alpha = Math.max(alpha, result.score);
-                if(beta <= alpha){
-                    break;
-                }
+        for(Move move : moves){
+            board.doMove(move);
+            int evaluation = -search(depth - 1, -beta, -alpha);
+            board.undoMove();
+            if(evaluation >= beta){ //Beta cutoff  
+                return beta;
             }
-            return new MinimaxResult(maxEval, bestMove);
-        } else {
-            double minEval = Double.POSITIVE_INFINITY; // Ensure correct constant for positive infinity
-            Move bestMove = null;
-            for (Move move : board.legalMoves()) {
-                board.doMove(move);
-                MinimaxResult result = minimax(board, depth - 1, true, alpha, beta);
-                board.undoMove();
-
-                if (result.score < minEval) {
-                    minEval = result.score;
-                    bestMove = move;
-                }
-                beta = Math.min(result.score, beta);
-                if(beta <= alpha){
-                    break;
-                }
-            }
-            return new MinimaxResult(minEval, bestMove);
+            alpha = Math.max(alpha, evaluation);
         }
+
+        return alpha;
     }
 
      // Constants
@@ -314,14 +336,14 @@ public class AthenaEngine {
         }
     }
 
-    public static int evaluate(Board board) {
+    public static int evaluate() {
         if (board.isMated()) {
             System.out.println("CHECKMATE LOL!!! ");
             // Checkmate condition
             if (board.getSideToMove() == Side.WHITE) {
-                return Integer.MIN_VALUE; // White is checkmated
+                return Integer.MAX_VALUE; // White is checkmated
             } else {
-                return Integer.MAX_VALUE; // Black is checkmated
+                return Integer.MIN_VALUE; // Black is checkmated
             }
         }
 
