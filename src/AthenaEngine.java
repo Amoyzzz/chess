@@ -20,12 +20,11 @@ import java.io.IOException;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import java.util.concurrent.TimeUnit;
 
 public class AthenaEngine {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
-    private static final int DEPTH_USED = 4;
+    private static final int DEPTH_USED = 6;
     private static long numTranspositions = 0;
     private static final HashMap<Long, Double> transpositions = new HashMap<>();
     
@@ -468,8 +467,8 @@ public class AthenaEngine {
        98, 134,  61,  95,  68, 126,  34, -11,
        -6,   7,  26,  31,  65,  56,  25, -20,
        -14, 13,   6,  21,  23,  12,  17, -23,
-       -27,  -2,  -5,  12,  17,   6,  10, -25,
-       -26, -4,  -4,  -10,  3,   3,  33, -12,
+       -2,  -2,  -5,  12,  17,   6,  10, -2,
+       -2, -4,  -4,  -10,  3,   3,  33, -2,
        -35, -1, -20, -23, -15,  24,  38, -22,
         0,   0,   0,   0,   0,   0,   0,   0
    };
