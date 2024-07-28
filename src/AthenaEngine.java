@@ -50,7 +50,6 @@ public class AthenaEngine {
             while (true) {
                 // Print the board from the black viewpoint and the evaluation
                 System.out.println(board.toStringFromBlackViewPoint());
-                //System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
                 System.out.println("\n\n");
                 
                 // Check for end-of-game conditions
@@ -59,14 +58,6 @@ public class AthenaEngine {
                     break;
                 }
                 if (board.isMated()) {
-                    playSound("win.wav"); // Play checkmate sound
-                    try {
-                        Thread.sleep(2000);
-                    }
-                    catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-
                     System.out.println("CHECKMATE");
                     break;
                 }
@@ -80,10 +71,20 @@ public class AthenaEngine {
                 double elapsedTime = System.currentTimeMillis() - starttime;
                 double elapsedSeconds = elapsedTime / 1000;
                 System.out.println(elapsedSeconds);
+
+
+                if (board.isMated()) {
+                    playSound("win.wav"); // Play checkmate sound
+                    try {
+                        Thread.sleep(3000);
+                    }
+                    catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
                 
                 // Print the board after the AI's move
                 System.out.println(board.toStringFromBlackViewPoint());
-                //System.out.println("Evaluation: " + eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, 0));
                 System.out.println("\n\n");
                 
                 // Check for end-of-game conditions
@@ -92,14 +93,6 @@ public class AthenaEngine {
                     break;
                 }
                 if (board.isMated()) {
-                    playSound("win.wav"); // Play checkmate sound
-                    try {
-                        Thread.sleep(2000);
-                    }
-                    catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-
                     System.out.println("CHECKMATE");
                     break;
                 }
@@ -149,13 +142,14 @@ public class AthenaEngine {
 
     public static double minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta, Move testMove) {
         long zobristKey = board.getZobristKey();
-        // if (transpositions.containsKey(zobristKey)){
-        //     return transpositions.get(zobristKey);
-        // }                                            NOT SEEING SOME CHECKMATES?????
+        if (transpositions.containsKey(zobristKey)){
+            return transpositions.get(zobristKey);
+        }
 
         if (depth == 0 || board.isMated() || board.isDraw()) {
             return eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, DEPTH_USED - depth, testMove);
         }
+        
 
         if (maximizingPlayer) {
             double maxEval = -INFINITY;
@@ -168,6 +162,7 @@ public class AthenaEngine {
                     maxEval = result;
                 }
                 alpha = Math.max(alpha, result);
+                
                 if(beta < alpha){
                     break;
                 }
@@ -451,9 +446,9 @@ public class AthenaEngine {
 
         evaluation += 14 - totalDst;
         if(gamePhase == 0){
-            return evaluation * 10 * 10 * 10;
+            return evaluation * 10 * 10 * 1;
         }
-        return (int)(evaluation * 10 * (1/gamePhase + 15));
+        return (int)(evaluation * 10 * (1/gamePhase + 2));
     }
 
 
