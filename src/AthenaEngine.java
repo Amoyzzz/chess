@@ -149,9 +149,9 @@ public class AthenaEngine {
 
     public static double minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta, Move testMove) {
         long zobristKey = board.getZobristKey();
-        if (transpositions.containsKey(zobristKey)){
-            return transpositions.get(zobristKey);
-        }
+        // if (transpositions.containsKey(zobristKey)){
+        //     return transpositions.get(zobristKey);
+        // }                                            NOT SEEING SOME CHECKMATES?????
 
         if (depth == 0 || board.isMated() || board.isDraw()) {
             return eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, DEPTH_USED - depth, testMove);
