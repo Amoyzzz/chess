@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class AthenaEngine {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
-    private static final int DEPTH_USED = 16;
+    private static final int DEPTH_USED = 6;
     private static HashMap<Long, Double> transpositions = new HashMap<>();
     
     
@@ -42,13 +42,21 @@ public class AthenaEngine {
     }
     public static void main(String[] args) {
         Board board = new Board();
-        board.loadFromFen("4k3/8/8/8/4KQ2/8/8/8 W - - 0 1"); //Input FEN here
+        board.loadFromFen("2k5/8/8/8/8/8/4KQQ1/8 w - - 0 1"); //Input FEN here
         bestMove = null;
         try (Scanner in = new Scanner(System.in)) {
             initTables();
             
             while (true) {
-                // Print the board from the black viewpoint and the evaluation
+                if (board.isMated()) {
+                    playSound("win.wav"); // Play checkmate sound
+                    try {
+                        Thread.sleep(3000);
+                    }
+                    catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
                 System.out.println(board.toStringFromBlackViewPoint());
                 System.out.println("\n\n");
                 
