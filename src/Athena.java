@@ -21,7 +21,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class Athena {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
-    private static final int DEPTH_USED = 8;
+    private static final int DEPTH_USED = 4;
     private static final HashMap<Long, Double> transpositions = new HashMap<>();
     
     

@@ -14,20 +14,11 @@
  `--'  `"   `'-'  '---'   '---'                  '--'   '--' `--'  `"                                          
 ```
 
-Version 1.0.0 (Magnus)
+Athena V1_Fabiano
 
 Welcome to Athena, a free chess engine made to quickly and efficiently defeat human players and other chess engines. 
 
 
-Developed by @Amoyzzz, @Endqrmqn, and @NicholasIGuess.
+Developed by [**@Amoyzzz**](github.com/Amoyzzz), [**@Endqrmqn**](github.com/Endqrmqn), and [**@NicholasIGuess**](github.com/NicholasIGuess).
 
 Uses [bhlangonijr/chesslib](github.com/bhlangonijr/chesslib) for backend move generation.
-
-
-
-
-opening table
-
-increase depth
-
-chessUCI
