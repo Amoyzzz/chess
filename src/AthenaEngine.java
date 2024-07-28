@@ -3,13 +3,24 @@ import backstage.Piece;
 import backstage.PieceType;
 import backstage.Side;
 import backstage.move.Move;
+<<<<<<< Updated upstream
+=======
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+>>>>>>> Stashed changes
 import java.util.Scanner;
 
 
 public class AthenaEngine {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
-    private static final int DEPTH_USED = 6;
+    private static final int DEPTH_USED = 7;
+    private static HashMap<Long, Double> transpositions = new HashMap<>();
+
+
     public static void testEval(){
         String fen = "r1bqkbnr/ppppppp1/8/7p/1nBPP3/5Q2/PPP2PPP/RNB1K1NR w KQkq - 4 5";
         Board board = new Board();
@@ -21,7 +32,11 @@ public class AthenaEngine {
     }
     public static void main(String[] args) {
         Board board = new Board();
+<<<<<<< Updated upstream
         board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); //Input FEN here
+=======
+        board.loadFromFen("8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - - 0 1"); //Input FEN here
+>>>>>>> Stashed changes
         bestMove = null;
         try (Scanner in = new Scanner(System.in)) {
             initTables();
@@ -96,6 +111,12 @@ public class AthenaEngine {
     }
 
     public static double minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta, Move testMove) {
+        long zobristKey = board.getZobristKey();
+        if (transpositions.containsKey(zobristKey)) {
+            
+            return transpositions.get(zobristKey);
+        }
+
         if (depth == 0 || board.isMated() || board.isDraw()) {
             return eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, DEPTH_USED - depth, testMove);
         }
@@ -115,6 +136,7 @@ public class AthenaEngine {
                     break;
                 }
             }
+            transpositions.put(zobristKey, maxEval);
             return maxEval;
         } else {
             double minEval = INFINITY;
@@ -131,6 +153,7 @@ public class AthenaEngine {
                     break;
                 }
             }
+            transpositions.put(zobristKey, minEval);
             return minEval;
         }
     }
