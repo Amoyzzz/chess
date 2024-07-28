@@ -25,7 +25,6 @@ Uses [bhlangonijr/chesslib](github.com/bhlangonijr/chesslib) for backend move ge
 
 
 
-transpositions 
 
 opening table
 

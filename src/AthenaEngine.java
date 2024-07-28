@@ -25,19 +25,8 @@ import java.util.concurrent.TimeUnit;
 public class AthenaEngine {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
-    private static final int DEPTH_USED = 7;
+    private static final int DEPTH_USED = 16;
     private static HashMap<Long, Double> transpositions = new HashMap<>();
-
-
-    public static void testEval(){
-        String fen = "r1bqkbnr/ppppppp1/8/7p/1nBPP3/5Q2/PPP2PPP/RNB1K1NR w KQkq - 4 5";
-        Board board = new Board();
-        board.loadFromFen(fen);
-        initTables();
-        System.out.println(board);
-
-        //System.out.println(eval(board, 0), 0);
-    }
     
     
     public static void playSound(String soundFile) {
@@ -53,7 +42,7 @@ public class AthenaEngine {
     }
     public static void main(String[] args) {
         Board board = new Board();
-        board.loadFromFen("r1b1k1nr/ppp2ppp/2n5/3pp3/7q/8/PPPPPPP1/RNBQKBN1 w Qkq - 0 1"); //Input FEN here
+        board.loadFromFen("4k3/8/8/8/4KQ2/8/8/8 W - - 0 1"); //Input FEN here
         bestMove = null;
         try (Scanner in = new Scanner(System.in)) {
             initTables();
@@ -131,6 +120,7 @@ public class AthenaEngine {
     }
     
     public static double search(Board board, int depth) {
+        transpositions.clear();
         double maxEval = -INFINITY;
         int count = 0;
         List<Move> moves = board.legalMoves();
@@ -139,24 +129,19 @@ public class AthenaEngine {
         }
         OrderMoves(moves);
         System.out.println(moves);
-        for (Move move: moves){
-            System.out.println(move.getScore());
-        }
         for (Move move: moves) {
             if(count == 0){
                 bestMove = move;
             }
-            if (move.getScore() > -1){
-                count++;
-                board.doMove(move);
-                double result = -minimax(board, depth - 1, true, -INFINITY, INFINITY, move);
-                board.undoMove();
-                System.out.println(move + " -> " + result);
+            count++;
+            board.doMove(move);
+            double result = -minimax(board, depth - 1, true, -INFINITY, INFINITY, move);
+            board.undoMove();
+            System.out.println(move + " -> " + result);
 
-                if (result > maxEval) {
-                    maxEval = result;
-                    bestMove = move;
-                }
+            if (result > maxEval) {
+                maxEval = result;
+                bestMove = move;
             }
         }
         return maxEval;
@@ -164,8 +149,7 @@ public class AthenaEngine {
 
     public static double minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta, Move testMove) {
         long zobristKey = board.getZobristKey();
-        if (transpositions.containsKey(zobristKey)) {
-            
+        if (transpositions.containsKey(zobristKey)){}
             return transpositions.get(zobristKey);
         }
 
