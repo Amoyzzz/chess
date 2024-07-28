@@ -3,29 +3,25 @@ import backstage.Piece;
 import backstage.PieceType;
 import backstage.Side;
 import backstage.Square;
+import backstage.game.Game;
 import backstage.move.Move;
-
+import backstage.move.MoveList;
+import backstage.pgn.PgnIterator;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
-
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import java.io.File;
-import java.io.IOException;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-
-public class AthenaEngine {
+public class Athena {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
-    private static final int DEPTH_USED = 6;
-    private static long numTranspositions = 0;
+    private static final int DEPTH_USED = 8;
     private static final HashMap<Long, Double> transpositions = new HashMap<>();
     
     
@@ -36,90 +32,37 @@ public class AthenaEngine {
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            e.printStackTrace();
-        }
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {}
     }
-    public static void main(String[] args) {
-        Board board = new Board();
-        board.loadFromFen("8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - -"); //Input FEN here
+    
+    public static Move bestMove(Board board) {
+        // if (board.getHalfMoveCounter() < 10) {
+        //     System.out.println(openingMove(board));
+        //     return openingMove(board);
+        // }
         bestMove = null;
-        try (Scanner in = new Scanner(System.in)) {
-            initTables();
-            
-            while (true) {
-                if (board.isMated()) {
-                    playSound("win.wav"); // Play checkmate sound
-                    try {
-                        Thread.sleep(3000);
-                    }
-                    catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-                System.out.println(board.toStringFromBlackViewPoint());
-                System.out.println("\n\n");
-                
-                // Check for end-of-game conditions
-                if (board.isDraw()) {
-                    System.out.println("DRAW");
-                    break;
-                }
-                if (board.isMated()) {
-                    System.out.println("CHECKMATE");
-                    break;
-                }
-                
-                // Get and execute the best move from the AI (maximizing player)
-                double starttime = System.currentTimeMillis();
-                search(board, DEPTH_USED);
-                System.out.println("Transpositions: " + numTranspositions);
-                System.out.println("Legal moves: " + board.legalMoves());
-                System.out.println("Chosen move: " + bestMove);
-                board.doMove(bestMove);
-                double elapsedTime = System.currentTimeMillis() - starttime;
-                double elapsedSeconds = elapsedTime / 1000;
-                System.out.println(elapsedSeconds);
+        search(board, DEPTH_USED);
+        board.doMove(bestMove);
+        return bestMove;
+    }
 
-
-                if (board.isMated()) {
-                    playSound("win.wav"); // Play checkmate sound
-                    try {
-                        Thread.sleep(3000);
-                    }
-                    catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
+    @SuppressWarnings("unused")
+    private static Move openingMove(Board board){
+        try {
+            try (PgnIterator pgn = new PgnIterator("games.pgn")) {
+                for (Game game: pgn) {
+                    // MoveList moves = game.getHalfMoves();
+                    // if (game.getFen().equals(board.getFen())) {
+                    //     return moves.get(board.getMoveCounter() * 2);
+                    // }
                 }
-                
-                // Print the board after the AI's move
-                System.out.println(board.toStringFromBlackViewPoint());
-                System.out.println("\n\n");
-                
-                // Check for end-of-game conditions
-                if (board.isDraw()) {
-                    System.out.println("DRAW");
-                    break;
-                }
-                if (board.isMated()) {
-                    System.out.println("CHECKMATE");
-                    break;
-                }
-                
-                // Get and execute the player's move (minimizing player)
-                board.doMove(in.nextLine());
             }
+        } catch (Exception e) {
         }
+        return null;
     }
 
-    public static void OrderMoves(List<Move> moves) {
-        Collections.sort(moves, new Comparator<Move>() {
-            @Override
-            public int compare(Move m1, Move m2) {
-                return Integer.compare(m2.getScore(), m1.getScore()); // For descending order
-            }
-        });
-    }
+    public static void OrderMoves(List<Move> moves) {Collections.sort(moves, (Move m1, Move m2) -> Integer.compare(m2.getScore(), m1.getScore()));}
     
     public static double search(Board board, int depth) {
         double maxEval = -INFINITY;
@@ -128,8 +71,7 @@ public class AthenaEngine {
         for (Move move: moves){
             move.setScore(MoveValue(board, move));
         }
-        OrderMoves(moves);
-        System.out.println(moves);
+
         for (Move move: moves) {
             if(count == 0){
                 bestMove = move;
@@ -138,7 +80,6 @@ public class AthenaEngine {
             board.doMove(move);
             double result = -minimax(board, depth - 1, true, -INFINITY, INFINITY, move);
             board.undoMove();
-            System.out.println(move + " -> " + result);
 
             if (result > maxEval) {
                 maxEval = result;
@@ -195,11 +136,9 @@ public class AthenaEngine {
     public static double eval(Board board, int sideToMove, int movesPlayed, Move testMove) {
         long zobristKey = board.getZobristKey();
         if (transpositions.containsKey(zobristKey)){
-            numTranspositions++;
             return transpositions.get(zobristKey);
         }
         if (board.isMated() && sideToMove == 1) {
-            //System.out.println("found a mate");
             return -INFINITY / 10 + movesPlayed;
         } else if(board.isDraw()){
             return 0;
@@ -455,10 +394,10 @@ public class AthenaEngine {
 
 
         evaluation += 14 - totalDst;
-        if(gamePhase == 0){
-            return evaluation * 10 * 10 * 1;
-        }
-        return (int)(evaluation * 10 * (1/gamePhase + 2));
+        // if(gamePhase == 0){
+        //     return evaluation * 10 * 10 * 1;
+        // }
+        return (int)(evaluation);
     }
 
 

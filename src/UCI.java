@@ -1,13 +1,13 @@
-package backstage.UCI;
-
+import backstage.*;
+import backstage.move.Move;
 import java.util.*;
 public class UCI {
-    static String ENGINENAME="Orion v1";
-    public static void uciCommunication() {
-        while (true)
-        {
+    static String ENGINENAME="Athena v1_Fabiano";
+
+    public static void uciCommunication(Board board) {
+        while (true){
             Scanner input = new Scanner(System.in);
-            String inputString=input.nextLine();
+            String inputString = input.nextLine();
             if ("uci".equals(inputString))
             {
                 inputUCI();
@@ -22,25 +22,20 @@ public class UCI {
             }
             else if ("ucinewgame".equals(inputString))
             {
-                inputUCINewGame();
+                inputUCINewGame(board);
             }
             else if (inputString.startsWith("position"))
             {
-                inputPosition(inputString);
+                inputPosition(inputString, board);
             }
             else if ("go".equals(inputString))
             {
-                inputGo();
-            }
-            else if ("print".equals(inputString))
-            {
-                inputPrint();
+                inputGo(board);
             }
         }
     }
     public static void inputUCI() {
-        System.out.println("id name "+ENGINENAME);
-        System.out.println("id author Jonathan");
+        System.out.println("Engine: "+ENGINENAME);
         //options go here
         System.out.println("uciok");
     }
@@ -50,28 +45,27 @@ public class UCI {
     public static void inputIsReady() {
          System.out.println("readyok");
     }
-    public static void inputUCINewGame() {
-        //add code here
+    public static void inputUCINewGame(Board board) {
+        board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
-    public static void inputPosition(String input) {
+    public static void inputPosition(String input, Board board) {
         input=input.substring(9).concat(" ");
         if (input.contains("startpos ")) {
             input=input.substring(9);
-            BoardGeneration.importFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+            board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         }
         else if (input.contains("fen")) {
             input=input.substring(4);
-            BoardGeneration.importFEN(input);
+            board.loadFromFen(input);
         }
         if (input.contains("moves")) {
             input=input.substring(input.indexOf("moves")+6);
             //make each of the moves
         }
     }
-    public static void inputGo() {
+    public static void inputGo(Board board) {
         //search for best move
-    }
-    public static void inputPrint() {
-        BoardGeneration.drawArray(UserInterface.WP,UserInterface.WN,UserInterface.WB,UserInterface.WR,UserInterface.WQ,UserInterface.WK,UserInterface.BP,UserInterface.BN,UserInterface.BB,UserInterface.BR,UserInterface.BQ,UserInterface.BK);
+        Move bestMove = Athena.bestMove(board);
+        System.out.println(bestMove.toString());
     }
 }

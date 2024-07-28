@@ -14,7 +14,7 @@
  `--'  `"   `'-'  '---'   '---'                  '--'   '--' `--'  `"                                          
 ```
 
-Version 1.0.0 (EngineBase)
+Version 1.0.0 (Magnus)
 
 Welcome to Athena, a free chess engine made to quickly and efficiently defeat human players and other chess engines. 
 
