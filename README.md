@@ -14,7 +14,7 @@
  `--'  `"   `'-'  '---'   '---'                  '--'   '--' `--'  `"                                          
 ```
 
-Version 1_EngineBase
+Version 1.0.0 (EngineBase)
 
 Welcome to Athena, a free chess engine made to quickly and efficiently defeat human players and other chess engines. 
 
@@ -25,8 +25,10 @@ Uses [bhlangonijr/chesslib](github.com/bhlangonijr/chesslib) for backend move ge
 
 
 
-Increase Search Depth (increase to a depth of 20+)
+transpositions 
 
-dynamic heatmaps 
+opening table
+
+increase depth
 
 chessUCI
