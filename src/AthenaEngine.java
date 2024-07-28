@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 public class AthenaEngine {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
-    private static final int DEPTH_USED = 6;
-    private static HashMap<Long, Double> transpositions = new HashMap<>();
+    private static final int DEPTH_USED = 4;
+    private static final HashMap<Long, Double> transpositions = new HashMap<>();
     
     
     public static void playSound(String soundFile) {
@@ -42,7 +42,7 @@ public class AthenaEngine {
     }
     public static void main(String[] args) {
         Board board = new Board();
-        board.loadFromFen("2k5/8/8/8/8/8/4KQQ1/8 w - - 0 1"); //Input FEN here
+        board.loadFromFen("rnbqkbnr/ppp3pp/5p2/3pp3/3P4/N3P3/PPP1NPPP/R1BQKB1R w KQkq - 0 1"); //Input FEN here
         bestMove = null;
         try (Scanner in = new Scanner(System.in)) {
             initTables();
@@ -121,7 +121,6 @@ public class AthenaEngine {
     }
     
     public static double search(Board board, int depth) {
-        transpositions.clear();
         double maxEval = -INFINITY;
         int count = 0;
         List<Move> moves = board.legalMoves();
@@ -149,10 +148,7 @@ public class AthenaEngine {
     }
 
     public static double minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta, Move testMove) {
-        long zobristKey = board.getZobristKey();
-        if (transpositions.containsKey(zobristKey)){
-            return transpositions.get(zobristKey);
-        }
+        
 
         if (depth == 0 || board.isMated() || board.isDraw()) {
             return eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, DEPTH_USED - depth, testMove);
@@ -175,7 +171,6 @@ public class AthenaEngine {
                     break;
                 }
             }
-            transpositions.put(zobristKey, maxEval);
             return maxEval;
         } else {
             double minEval = INFINITY;
@@ -192,12 +187,15 @@ public class AthenaEngine {
                     break;
                 }
             }
-            transpositions.put(zobristKey, minEval);
             return minEval;
         }
     }
 
     public static double eval(Board board, int sideToMove, int movesPlayed, Move testMove) {
+        long zobristKey = board.getZobristKey();
+        if (transpositions.containsKey(zobristKey)){
+            return transpositions.get(zobristKey);
+        }
         if (board.isMated() && sideToMove == 1) {
             //System.out.println("found a mate");
             return -INFINITY / 10 + movesPlayed;
@@ -241,6 +239,8 @@ public class AthenaEngine {
         int mgScore = mg[sideToMove] - mg[1 - sideToMove];
         int egScore = eg[sideToMove] - eg[1 - sideToMove];
         double finalScore = (mgScore * gamePhase + egScore * (24 - gamePhase)) / 24;
+
+        transpositions.put(zobristKey, -(finalScore - movesPlayed));
         
         return -(finalScore - movesPlayed);
     }
