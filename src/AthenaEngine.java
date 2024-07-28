@@ -3,14 +3,7 @@ import backstage.Piece;
 import backstage.PieceType;
 import backstage.Side;
 import backstage.move.Move;
-<<<<<<< Updated upstream
-=======
-
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
->>>>>>> Stashed changes
 import java.util.Scanner;
 
 
@@ -32,11 +25,7 @@ public class AthenaEngine {
     }
     public static void main(String[] args) {
         Board board = new Board();
-<<<<<<< Updated upstream
         board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); //Input FEN here
-=======
-        board.loadFromFen("8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - - 0 1"); //Input FEN here
->>>>>>> Stashed changes
         bestMove = null;
         try (Scanner in = new Scanner(System.in)) {
             initTables();
