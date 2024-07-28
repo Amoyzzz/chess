@@ -26,6 +26,7 @@ public class AthenaEngine {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
     private static final int DEPTH_USED = 4;
+    private static long numTranspositions = 0;
     private static final HashMap<Long, Double> transpositions = new HashMap<>();
     
     
@@ -42,7 +43,7 @@ public class AthenaEngine {
     }
     public static void main(String[] args) {
         Board board = new Board();
-        board.loadFromFen("rnbqkbnr/ppp3pp/5p2/3pp3/3P4/N3P3/PPP1NPPP/R1BQKB1R w KQkq - 0 1"); //Input FEN here
+        board.loadFromFen("8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - -"); //Input FEN here
         bestMove = null;
         try (Scanner in = new Scanner(System.in)) {
             initTables();
@@ -73,6 +74,7 @@ public class AthenaEngine {
                 // Get and execute the best move from the AI (maximizing player)
                 double starttime = System.currentTimeMillis();
                 search(board, DEPTH_USED);
+                System.out.println("Transpositions: " + numTranspositions);
                 System.out.println("Legal moves: " + board.legalMoves());
                 System.out.println("Chosen move: " + bestMove);
                 board.doMove(bestMove);
@@ -194,6 +196,7 @@ public class AthenaEngine {
     public static double eval(Board board, int sideToMove, int movesPlayed, Move testMove) {
         long zobristKey = board.getZobristKey();
         if (transpositions.containsKey(zobristKey)){
+            numTranspositions++;
             return transpositions.get(zobristKey);
         }
         if (board.isMated() && sideToMove == 1) {
