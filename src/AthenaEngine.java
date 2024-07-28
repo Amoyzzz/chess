@@ -149,7 +149,7 @@ public class AthenaEngine {
 
     public static double minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta, Move testMove) {
         long zobristKey = board.getZobristKey();
-        if (transpositions.containsKey(zobristKey)){}
+        if (transpositions.containsKey(zobristKey)){
             return transpositions.get(zobristKey);
         }
 
