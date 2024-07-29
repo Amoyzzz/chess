@@ -51,7 +51,7 @@ public class UCI {
     }
     public static void inputPosition(String input, Board board) {
         input=input.substring(9).concat(" ");
-        if (input.contains("startpos ")) {
+        if (input.contains("startpos")) {
             input=input.substring(9);
             board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         }
@@ -60,13 +60,14 @@ public class UCI {
             board.loadFromFen(input);
         }
         if (input.startsWith("moves")) {
-            
+            input=input.substring(6); 
+            board.doMove(input);
         }
     }
     public static void inputGo(Board board) {
         //search for best move
         Move bestMove = Athena.bestMove(board);
         board.doMove(bestMove);
-        System.out.println(bestMove.toString());
+        System.out.println("bestmove " + bestMove.toString());
     }
 }
