@@ -4,7 +4,8 @@ import java.util.*;
 public class UCI {
     static String ENGINENAME="Athena v1_Fabiano";
 
-    public static void uciCommunication(Board board) {
+    public static void uciCommunication() {
+        Athena a = new Athena();
         while (true){
             Scanner input = new Scanner(System.in);
             String inputString = input.nextLine();
@@ -22,15 +23,15 @@ public class UCI {
             }
             else if ("ucinewgame".equals(inputString))
             {
-                inputUCINewGame(board);
+                inputUCINewGame(a.getBoard());
             }
             else if (inputString.startsWith("position"))
             {
-                inputPosition(inputString, board);
+                inputPosition(inputString, a.getBoard());
             }
             else if ("go".equals(inputString))
             {
-                inputGo(board);
+                inputGo(a.getBoard());
             }
         }
     }
@@ -58,14 +59,14 @@ public class UCI {
             input=input.substring(4);
             board.loadFromFen(input);
         }
-        if (input.contains("moves")) {
-            input=input.substring(input.indexOf("moves")+6);
-            //make each of the moves
+        if (input.startsWith("moves")) {
+            
         }
     }
     public static void inputGo(Board board) {
         //search for best move
         Move bestMove = Athena.bestMove(board);
+        board.doMove(bestMove);
         System.out.println(bestMove.toString());
     }
 }

@@ -5,15 +5,16 @@ import backstage.Side;
 import backstage.Square;
 import backstage.game.Game;
 import backstage.move.Move;
+import backstage.move.MoveList;
 import backstage.pgn.PgnIterator;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -25,63 +26,43 @@ public class Athena {
     // static Move bestMove;
     // private static Move tempBestMove;
     //private static final int DEPTH_USED = 8;
-
+    private static OpeningBook openingBook;
     private static int tcounter = 0;
 
     private static int depthAt = 0;
 
+    private static Board internalBoard;
     private static final HashMap<Long, Integer> transpositions = new HashMap<>();
 
     public static boolean searchCutOff = false;
     // private static List<Move> bestMovesMap = new List<>();
-    public static void testEval(){
-        Board test = new Board();
-        String fen = "rnbqkbnr/1pppppp1/p6p/8/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3";
+    public Athena(){
         initTables();
-        test.loadFromFen(fen);
-        System.out.println(eval(test, 0, 0, null));
+        Athena.internalBoard = new Board();
 
-        
-    }
-    public Athena() {
-        //testEval();
-        Board board = new Board();
-        // board.loadFromFen("8/8/8/2K5/k7/8/4Q3/8 w - - 1 2");
-        initTables();
-        Scanner in = new Scanner(System.in);
-        while (true) {
-            Move chosenMove = bestMove(board);
-            System.out.println("Best move:  -> " + chosenMove);
-            board.doMove(chosenMove);
+        Path filePath = Paths.get("Book.txt");
+        String fileContents;
 
-            System.out.println(board);
-
-            if (board.isMated()) {
-                System.out.println("CHECKMATE");
-                break;
-            } else if (board.isKingAttacked()) {
-                System.out.println("CHECK");
-            } else if (board.isDraw()) {
-                System.out.println("DRAW");
-                break;
-            }
-            board.doMove(in.nextLine());
-
-            System.out.println(board);
-
-            if (board.isMated()) {
-                System.out.println("CHECKMATE");
-                break;
-            } else if (board.isKingAttacked()) {
-                System.out.println("CHECK");
-            } else if (board.isDraw()) {
-                System.out.println("DRAW");
-                break;
-            }
+        // Read the file contents
+        try {
+            fileContents = Files.readString(filePath);
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+            return;
         }
 
-        System.out.println(board);
+        // Create an OpeningBook instance
+        double weightPow = 0.5; // Example weight power
+        openingBook = new OpeningBook(fileContents, weightPow);
     }
+
+    public Board getBoard(){
+        return internalBoard;
+    }
+    public void setBoard(Board board){
+        Athena.internalBoard = board;
+    }
+
 
     public static void playSound(String soundFile) {
         try {
@@ -102,7 +83,14 @@ public class Athena {
         // for (Move move : moves) {
         //     move.setScore(MoveValue(board, move));
         // }
+        // Create an array to hold the move string
+        String[] moveString = new String[1];
 
+        // Attempt to get a book move
+        boolean found = openingBook.tryGetBookMove(board, moveString);
+        if(found){
+            return new Move(moveString[0], board.getSideToMove());
+        }
         // OrderMovesGUESS(moves);
         for (Move move : moves) {
 
@@ -136,7 +124,7 @@ public class Athena {
         return bestMove;
     }
 
-    private static int iterativeDeepening(Board newBoard, long searchTimeLimit, Move testMove) {
+    private static int iterativeDeepening(Board board, long searchTimeLimit, Move testMove) {
         long startTime = System.currentTimeMillis();
         long endTime = startTime + searchTimeLimit;
         int depth = 1;
@@ -153,9 +141,9 @@ public class Athena {
             //     result = transpositions.get(newBoard.getZobristKey());
             //     notTrans = false;
             // } else {
-                result = -minimax(newBoard, depth, true, -INFINITY, INFINITY, testMove, currentTime,endTime - currentTime);
+                result = -minimax(board, depth, true, -INFINITY, INFINITY, testMove, currentTime,endTime - currentTime);
                 // System.out.println(result);
-                transpositions.put(newBoard.getZobristKey(), result);
+                transpositions.put(board.getZobristKey(), result);
             // }
 
             if (!searchCutOff) {score = Math.max(score, result);}
@@ -169,7 +157,7 @@ public class Athena {
             depth++;
             depthAt++;
         }
-        System.out.println("Reached Depth of - " + depth + " with score - " + score);
+        System.out.println("Reached Depth of - " + depth + " with score - " + score + " With move" + testMove);
         return score;
 
     }
@@ -179,10 +167,10 @@ public class Athena {
         try {
             try (PgnIterator pgn = new PgnIterator("games.pgn")) {
                 for (Game game : pgn) {
-                    // MoveList moves = game.getHalfMoves();
-                    // if (game.getFen().equals(board.getFen())) {
-                    // return moves.get(board.getMoveCounter() * 2);
-                    // }
+                    MoveList moves = game.getHalfMoves();
+                    if (game.getFen().equals(board.getFen())) {
+                    return moves.get(board.getMoveCounter() * 2);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -230,8 +218,7 @@ public class Athena {
     // return maxEval;
     // }
 
-    public static int minimax(Board board, int depth, boolean aiMove, double alpha, double beta, Move testMove,
-            long startTime, long timeLimit) {
+    public static int minimax(Board board, int depth, boolean aiMove, double alpha, double beta, Move testMove, long startTime, long timeLimit) {
         int score = eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, depthAt - depth, testMove);
 
         long currentTime = System.currentTimeMillis();
@@ -247,10 +234,10 @@ public class Athena {
         if (aiMove) {
             int maxEval = -INFINITY;
             for (Move move : board.legalMoves()) {
-                Board childState = board.clone();
-                childState.doMove(move);
-                int result = minimax(childState, depth - 1, false, alpha, beta, move, startTime, timeLimit);
-                childState.undoMove();
+                //Board childState = board.clone();
+                board.doMove(move);
+                int result = minimax(board, depth - 1, false, alpha, beta, move, startTime, timeLimit);
+                board.undoMove();
                 maxEval = Math.max(maxEval, result);
                 alpha = Math.max(alpha, maxEval);
 
@@ -262,10 +249,9 @@ public class Athena {
         } else {
             int minEval = INFINITY;
             for (Move move : board.legalMoves()) {
-                Board childState = board.clone();
-                childState.doMove(move);
-                int result = minimax(childState, depth - 1, false, alpha, beta, move, startTime, timeLimit);
-                childState.undoMove();
+                board.doMove(move);
+                int result = minimax(board, depth - 1, false, alpha, beta, move, startTime, timeLimit);
+                board.undoMove();
 
                 minEval = Math.min(minEval, result);
                 beta = Math.min(minEval, beta);
@@ -320,12 +306,13 @@ public class Athena {
             if (piece.getPieceType() == PieceType.KING && color != sideToMove) {
                 opponentKingSquare = beginSquare;
             }
+            
         }
 
         //mg[sideToMove] += MoveValue(board, testMove);
        // eg[sideToMove] += MoveValue(board, testMove);
         eg[sideToMove] += forceKingToCornerEndgameEval(friendlyKingSquare, opponentKingSquare, gamePhase);
-        eg[sideToMove] += (board.isKingAttacked() && sideToMove != (board.getSideToMove() == Side.WHITE ? 1 : 0)) ? 10 : 0;
+        //eg[sideToMove] += (board.isKingAttacked() && sideToMove != (board.getSideToMove() == Side.WHITE ? 1 : 0)) ? 10 : 0;
         //System.out.println(mg[sideToMove] + " " + eg[sideToMove]);
         //System.out.println(mg[1 - sideToMove] + " " + eg[1 - sideToMove]);
         int mgScore = mg[sideToMove] - mg[1 - sideToMove];
