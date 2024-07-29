@@ -60,7 +60,7 @@ public class UCI {
             board.loadFromFen(input);
         }
         if (input.startsWith("moves")) {
-            input=input.substring(6); 
+            input=input.substring(input.indexOf("moves")+6);
             board.doMove(input);
         }
     }
