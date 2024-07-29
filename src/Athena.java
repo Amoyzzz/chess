@@ -296,8 +296,8 @@ public class Athena {
             beginSquare++;
             int mgScore = mgValue(pieceType);
             int egScore = egValue(pieceType);
-            mg[color] += mgScore * 5 + mgPestoTable[color][pieceType][sq] * 1;
-            eg[color] += egScore * 5 + egPestoTable[color][pieceType][sq] * 1;
+            mg[color] += mgScore * 5 + mgPestoTable[color][pieceType][sq] * 0.25;
+            eg[color] += egScore * 5 + egPestoTable[color][pieceType][sq] * 0.25;
             gamePhase += gamePhaseInc(pieceType); // Update gamePhase here
     
             if (piece.getPieceType() == PieceType.KING && color == sideToMove) {
