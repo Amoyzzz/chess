@@ -32,14 +32,14 @@ public class Athena {
 
     private static int depthAt = 0;
 
-    private static Board internalBoard;
+    //private static Board internalBoard;
     private static final HashMap<Long, Integer> transpositions = new HashMap<>();
 
     public static boolean searchCutOff = false;
     private static List<Move> bestMovesMap = new ArrayList<>();
     public Athena(){
         initTables();
-        Athena.internalBoard = new Board();
+        //Athena.internalBoard = new Board();
 
         Path filePath = Paths.get("Book.txt");
         String fileContents;
@@ -56,13 +56,13 @@ public class Athena {
         double weightPow = 0.5; // Example weight power
         openingBook = new OpeningBook(fileContents, weightPow);
     }
-    
-    public Board getBoard(){
-        return internalBoard;
-    }
-    public void setBoard(Board board){
-        Athena.internalBoard = board;
-    }
+
+    // public Board getBoard(){
+    //     return internalBoard;
+    // }
+    // public void setBoard(Board board){
+    //     Athena.internalBoard = board;
+    // }
 
 
     public static void playSound(String soundFile) {
@@ -227,17 +227,17 @@ public class Athena {
 
     public static int eval(Board board, int sideToMove, int movesPlayed, Move testMove) {
         long zobristKey = board.getZobristKey();
-    
+        sideToMove = 1 - sideToMove;
         if (transpositions.containsKey(zobristKey)) {
             ++tcounter;
             return transpositions.get(zobristKey);
         }
         if (board.isMated() && sideToMove != (board.getSideToMove() == Side.WHITE ? 1 : 0)) {
-            return (int) (-INFINITY / 10 + movesPlayed);
+            return (int) (INFINITY / 10 - movesPlayed);
         } else if (board.isDraw()) {
             return 0;
         } else if (board.isMated() && sideToMove == (board.getSideToMove() == Side.WHITE ? 1 : 0)) {
-            return (int) (INFINITY / 10 + movesPlayed);
+            return (int) (-INFINITY / 10 + movesPlayed);
         }
     
         int[] mg = { 0, 0 };
@@ -277,10 +277,14 @@ public class Athena {
         int capturePieceType = getPieceValueReal(board.getPiece(a.getTo()));
 
         if (capturePieceType != 0){
-            capturevalue = capturePieceType + (capturePieceType/(movePieceType+1))*10;
+            capturevalue = capturePieceType + (capturePieceType - movePieceType)*10;
         }
         board.doMove(a);
-
+        if (movePieceType > 250 && board.getPiece(a.getTo()).getPieceType() != board.getPiece(a.getFrom()).getPieceType()){
+            capturevalue -= movePieceType * 2;
+        }
+        mg[sideToMove] += capturevalue;
+        eg[sideToMove] += capturevalue;
         //mg[sideToMove] += MoveValue(board, testMove);
         //eg[sideToMove] += MoveValue(board, testMove);
         eg[sideToMove] += forceKingToCornerEndgameEval(friendlyKingSquare, opponentKingSquare, gamePhase);
@@ -291,9 +295,9 @@ public class Athena {
         int egScore = eg[sideToMove] - eg[1 - sideToMove];
         double finalScore = (mgScore * gamePhase + egScore * (24 - gamePhase)) / 10;
         //System.out.println(finalScore);
-        transpositions.put(zobristKey, (int) (-(finalScore - movesPlayed)));
+        transpositions.put(zobristKey, (int) ((finalScore - movesPlayed)));
     
-        return (int) (-(finalScore - movesPlayed));
+        return (int) ((finalScore - movesPlayed));
     }
     
     private static final int[][][] mgPestoTable = new int[2][6][64];

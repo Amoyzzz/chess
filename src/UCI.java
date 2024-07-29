@@ -1,84 +1,94 @@
 import backstage.*;
 import backstage.move.Move;
 import java.util.*;
+
 public class UCI {
-    static String ENGINENAME="Athena v1_Fabiano";
-    static Athena a = new Athena();
-    public UCI(){
+    static String ENGINENAME = "Athena v1_Fabiano";
+    private static Athena a;
+    private static Board board;
+
+    public UCI() {
         uciCommunication();
     }
+
     public static void uciCommunication() {
         Scanner input = new Scanner(System.in);
-        while (true){
+        while (true) {
             String inputString = input.nextLine();
-            if ("uci".equals(inputString))
-            {
+            if ("uci".equals(inputString)) {
                 inputUCI();
-            }
-            else if (inputString.startsWith("setoption"))
-            {
+            } else if (inputString.startsWith("setoption")) {
                 inputSetOption(inputString);
-            }
-            else if ("isready".equals(inputString))
-            {
+            } else if ("isready".equals(inputString)) {
                 inputIsReady();
-            }
-            else if ("ucinewgame".equals(inputString))
-            {
-                inputUCINewGame(a.getBoard());
-            }
-            else if (inputString.startsWith("position"))
-            {
-                inputPosition(inputString, a.getBoard());
-            }
-            else if (inputString.contains("go"))
-            {
-                inputGo(a.getBoard());
-            }
-            else if("quit".equals(inputString)){
+            } else if ("ucinewgame".equals(inputString)) {
+                inputUCINewGame();
+            } else if (inputString.startsWith("position")) {
+                inputPosition(inputString);
+            } else if (inputString.contains("go")) {
+                inputGo();
+            } else if ("quit".equals(inputString)) {
                 System.exit(0);
             }
         }
     }
+
     public static void inputUCI() {
-        System.out.println("id name "+ENGINENAME);
+        System.out.println("id name " + ENGINENAME);
         System.out.println("id author RedHatHackers");
-        //options go here
+        // options go here
         System.out.println("uciok");
     }
+
     public static void inputSetOption(String inputString) {
-        //set options
+        // set options
     }
+
     public static void inputIsReady() {
-         
-         System.out.println("readyok");
+        board = new Board();
+        a = new Athena();
+        System.out.println("readyok");
     }
-    public static void inputUCINewGame(Board board) {
-        
+
+    public static void inputUCINewGame() {
+
         board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
-    public static void inputPosition(String input, Board board) {
-        input=input.substring(9).concat(" ");
-        if (input.contains("startpos") && !input.contains("moves")) {
-            input=input.substring(9);
+
+    public static void inputPosition(String input) {
+        input = input.substring(9).concat(" "); // Remove "position " prefix and add a space at the end for easier
+                                                // parsing
+        if (input.contains("startpos")) {
+            // Load the standard starting position
             board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        }
-        else if (input.contains("fen")) {
-            input=input.substring(4);
-            board.loadFromFen(input);
+            input = input.substring(9); // Remove "startpos " prefix
+        } else if (input.contains("fen")) {
+            // Load a position from a FEN string
+            int fenEndIndex = input.indexOf("moves");
+            String fen = (fenEndIndex == -1) ? input.substring(4).trim() : input.substring(4, fenEndIndex).trim();
+            board.loadFromFen(fen);
+            input = (fenEndIndex == -1) ? "" : input.substring(fenEndIndex);
         }
         if (input.startsWith("moves")) {
-            input=input.substring(input.indexOf("moves")+6);
-            input = input.trim();
-            input = input.substring(input.lastIndexOf(" ") + 1);
-            //System.out.println(" EGIUAHFUIASHFUIFAHUIHFE " + input);
-            board.doMove(input);
+            input = input.substring(6).trim(); // Remove "moves " prefix and trim any leading/trailing spaces
+            String[] moves = input.split(" ");
+            for (String move : moves) {
+                // Apply each move to the board
+                board.doMove(move);
+            }
         }
+        // Print the updated board state
+        System.out.println(board);
     }
-    public static void inputGo(Board board) {
-        //search for best move
+
+    public static void inputGo() {
+        // search for best move
         Move bestMove = Athena.bestMove(board);
+        System.out.println(board);
         board.doMove(bestMove);
+        // a.setBoard(board);
         System.out.println("bestmove " + bestMove.toString());
+
+        System.out.println(board);
     }
 }
