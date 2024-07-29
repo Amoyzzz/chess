@@ -3,13 +3,13 @@ import backstage.move.Move;
 import java.util.*;
 public class UCI {
     static String ENGINENAME="Athena v1_Fabiano";
-    static Athena a;
+    static Athena a = new Athena();
     public UCI(){
         uciCommunication();
     }
     public static void uciCommunication() {
+        Scanner input = new Scanner(System.in);
         while (true){
-            Scanner input = new Scanner(System.in);
             String inputString = input.nextLine();
             if ("uci".equals(inputString))
             {
@@ -50,15 +50,16 @@ public class UCI {
         //set options
     }
     public static void inputIsReady() {
-         a = new Athena();
+         
          System.out.println("readyok");
     }
     public static void inputUCINewGame(Board board) {
+        
         board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
     public static void inputPosition(String input, Board board) {
         input=input.substring(9).concat(" ");
-        if (input.contains("startpos")) {
+        if (input.contains("startpos") && !input.contains("moves")) {
             input=input.substring(9);
             board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         }
@@ -68,7 +69,9 @@ public class UCI {
         }
         if (input.startsWith("moves")) {
             input=input.substring(input.indexOf("moves")+6);
-            input = input.substring(0, input.indexOf(" "));
+            input = input.trim();
+            input = input.substring(input.lastIndexOf(" ") + 1);
+            //System.out.println(" EGIUAHFUIASHFUIFAHUIHFE " + input);
             board.doMove(input);
         }
     }
@@ -76,6 +79,6 @@ public class UCI {
         //search for best move
         Move bestMove = Athena.bestMove(board);
         board.doMove(bestMove);
-        System.out.println(bestMove.toString());
+        System.out.println("bestmove " + bestMove.toString());
     }
 }

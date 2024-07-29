@@ -56,7 +56,7 @@ public class Athena {
         double weightPow = 0.5; // Example weight power
         openingBook = new OpeningBook(fileContents, weightPow);
     }
-
+    
     public Board getBoard(){
         return internalBoard;
     }
