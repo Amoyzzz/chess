@@ -37,7 +37,17 @@ public class Move implements BoardEvent {
 
     private int score;
 
+    private double eval;
+
     
+
+    public double getEval() {
+        return eval;
+    }
+
+    public void setEval(double eval) {
+        this.eval = eval;
+    }
 
     /**
      * Creates a new move, using its origin and destination squares.

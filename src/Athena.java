@@ -5,13 +5,14 @@ import backstage.Side;
 import backstage.Square;
 import backstage.game.Game;
 import backstage.move.Move;
-import backstage.move.MoveList;
 import backstage.pgn.PgnIterator;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -21,8 +22,13 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class Athena {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
-    private static final int DEPTH_USED = 4;
+    private static Move tempBestMove;
+    private static final int DEPTH_USED = 8;
+
+    private static int tcounter = 0;
+    
     private static final HashMap<Long, Double> transpositions = new HashMap<>();
+    //private static List<Move> bestMovesMap = new List<>();
     
     
     public static void playSound(String soundFile) {
@@ -36,12 +42,20 @@ public class Athena {
     }
     
     public static Move bestMove(Board board) {
-        // if (board.getHalfMoveCounter() < 10) {
-        //     System.out.println(openingMove(board));
-        //     return openingMove(board);
-        // }
         bestMove = null;
-        search(board, DEPTH_USED);
+        double bestScore = -INFINITY;
+        
+        long startTime = System.currentTimeMillis(); 
+        for (int currentDepth = 1; currentDepth <= DEPTH_USED; currentDepth++) {
+            double score = search(board, currentDepth);
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = tempBestMove;
+            }
+        }
+        long elapsed = System.currentTimeMillis() - startTime;
+        System.out.println("Time: " + elapsed);
+        System.out.println("Transpositions: " + tcounter);
         board.doMove(bestMove);
         return bestMove;
     }
@@ -62,41 +76,46 @@ public class Athena {
         return null;
     }
 
-    public static void OrderMoves(List<Move> moves) {Collections.sort(moves, (Move m1, Move m2) -> Integer.compare(m2.getScore(), m1.getScore()));}
+    public static void OrderMovesGUESS(List<Move> moves) {Collections.sort(moves, (Move m1, Move m2) -> Integer.compare(m2.getScore(), m1.getScore()));}
+
+    public static void OrderMovesReal(List<Move> moves) {Collections.sort(moves, (Move m1, Move m2) -> Double.compare(m2.getEval(), m1.getEval()));}
     
     public static double search(Board board, int depth) {
         double maxEval = -INFINITY;
         int count = 0;
         List<Move> moves = board.legalMoves();
-        for (Move move: moves){
+        
+        for (Move move : moves) {
             move.setScore(MoveValue(board, move));
         }
+        
+        OrderMovesGUESS(moves);
 
-        for (Move move: moves) {
-            if(count == 0){
-                bestMove = move;
+        
+        for (Move move : moves) {
+            if (count == 0) {
+                tempBestMove = move;
             }
             count++;
             board.doMove(move);
             double result = -minimax(board, depth - 1, true, -INFINITY, INFINITY, move);
+            move.setEval(move.getEval() + result);
+            System.out.println(move.getEval());
             board.undoMove();
-
+            
             if (result > maxEval) {
                 maxEval = result;
-                bestMove = move;
+                tempBestMove = move;
             }
         }
+        
         return maxEval;
     }
 
     public static double minimax(Board board, int depth, boolean maximizingPlayer, double alpha, double beta, Move testMove) {
-        
-
         if (depth == 0 || board.isMated() || board.isDraw()) {
             return eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, DEPTH_USED - depth, testMove);
         }
-        
-
         if (maximizingPlayer) {
             double maxEval = -INFINITY;
             for (Move move : board.legalMoves()) {
@@ -109,7 +128,7 @@ public class Athena {
                 }
                 alpha = Math.max(alpha, result);
                 
-                if(beta < alpha){
+                if(beta <= alpha){
                     break;
                 }
             }
@@ -119,13 +138,13 @@ public class Athena {
             for (Move move : board.legalMoves()) {
                 board.doMove(move);
                 double result = minimax(board, depth - 1, true, alpha, beta, testMove);
-                board.undoMove();
+                board.undoMove();   
 
                 if (result < minEval) {
                     minEval = result;
                 }
                 beta = Math.min(result, beta);
-                if(beta < alpha){
+                if(beta <= alpha){
                     break;
                 }
             }
@@ -135,7 +154,9 @@ public class Athena {
 
     public static double eval(Board board, int sideToMove, int movesPlayed, Move testMove) {
         long zobristKey = board.getZobristKey();
+
         if (transpositions.containsKey(zobristKey)){
+            ++tcounter;
             return transpositions.get(zobristKey);
         }
         if (board.isMated() && sideToMove == 1) {
