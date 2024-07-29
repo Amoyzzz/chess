@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,7 @@ public class Athena {
     private static final HashMap<Long, Integer> transpositions = new HashMap<>();
 
     public static boolean searchCutOff = false;
-    // private static List<Move> bestMovesMap = new List<>();
+    private static List<Move> bestMovesMap = new ArrayList<>();
     public Athena(){
         initTables();
         Athena.internalBoard = new Board();
@@ -131,20 +132,13 @@ public class Athena {
         int score = 0;
         depthAt = 1;
         searchCutOff = false;
-        //boolean notTrans;
         while (true) {
-            //notTrans = true;
             long currentTime = System.currentTimeMillis();
             if (currentTime >= endTime) {break;}
             int result = 0;
-            // if (transpositions.containsKey(newBoard.getZobristKey())) {
-            //     result = transpositions.get(newBoard.getZobristKey());
-            //     notTrans = false;
-            // } else {
-                result = -minimax(board, depth, true, -INFINITY, INFINITY, testMove, currentTime,endTime - currentTime);
-                // System.out.println(result);
-                transpositions.put(board.getZobristKey(), result);
-            // }
+            
+            result = -minimax(board, depth, true, -INFINITY, INFINITY, testMove, currentTime,endTime - currentTime);
+            transpositions.put(board.getZobristKey(), result);
 
             if (!searchCutOff) {score = Math.max(score, result);}
             else {break;}
@@ -153,7 +147,6 @@ public class Athena {
                 searchCutOff = true;
                 break;
             }
-            //if (notTrans == true){depth++;}
             depth++;
             depthAt++;
         }
@@ -186,37 +179,6 @@ public class Athena {
         Collections.sort(moves, (Move m1, Move m2) -> Double.compare(m2.getEval(), m1.getEval()));
     }
 
-    // public static double search(Board board, int depth, long timeLimit) {
-    // double maxEval = -INFINITY;
-    // int count = 0;
-    // List<Move> moves = board.legalMoves();
-
-    // for (Move move : moves) {
-    // move.setScore(MoveValue(board, move));
-    // }
-
-    // OrderMovesGUESS(moves);
-
-    // for (Move move : moves) {
-    // if (count == 0) {
-    // tempBestMove = move;
-    // }
-    // count++;
-    // board.doMove(move);
-    // double result = -minimax(board, depth - 1, true, -INFINITY, INFINITY, move,
-    // );
-    // move.setEval(move.getEval() + result);
-    // System.out.println(move.getEval());
-    // board.undoMove();
-
-    // if (result > maxEval) {
-    // maxEval = result;
-    // tempBestMove = move;
-    // }
-    // }
-
-    // return maxEval;
-    // }
 
     public static int minimax(Board board, int depth, boolean aiMove, double alpha, double beta, Move testMove, long startTime, long timeLimit) {
         int score = eval(board, board.getSideToMove() == Side.WHITE ? 0 : 1, depthAt - depth, testMove);
@@ -282,6 +244,7 @@ public class Athena {
         int[] eg = { 0, 0 };
         int gamePhase = 0;
         int beginSquare = 0;
+        int capturevalue = 0;
     
         int friendlyKingSquare = 0;
         int opponentKingSquare = 0;
@@ -296,8 +259,8 @@ public class Athena {
             beginSquare++;
             int mgScore = mgValue(pieceType);
             int egScore = egValue(pieceType);
-            mg[color] += mgScore * 5 + mgPestoTable[color][pieceType][sq] * 0.25;
-            eg[color] += egScore * 5 + egPestoTable[color][pieceType][sq] * 0.25;
+            mg[color] += mgScore + mgPestoTable[color][pieceType][sq] * 0.25;
+            eg[color] += egScore + egPestoTable[color][pieceType][sq] * 0.25;
             gamePhase += gamePhaseInc(pieceType); // Update gamePhase here
     
             if (piece.getPieceType() == PieceType.KING && color == sideToMove) {
@@ -307,17 +270,26 @@ public class Athena {
                 opponentKingSquare = beginSquare;
             }
             
+            
         }
+        Move a = board.undoMove();
+        int movePieceType = getPieceValueReal(board.getPiece(a.getFrom()));
+        int capturePieceType = getPieceValueReal(board.getPiece(a.getTo()));
+
+        if (capturePieceType != 0){
+            capturevalue = capturePieceType + (capturePieceType/(movePieceType+1))*10;
+        }
+        board.doMove(a);
 
         //mg[sideToMove] += MoveValue(board, testMove);
-       // eg[sideToMove] += MoveValue(board, testMove);
+        //eg[sideToMove] += MoveValue(board, testMove);
         eg[sideToMove] += forceKingToCornerEndgameEval(friendlyKingSquare, opponentKingSquare, gamePhase);
-        //eg[sideToMove] += (board.isKingAttacked() && sideToMove != (board.getSideToMove() == Side.WHITE ? 1 : 0)) ? 10 : 0;
+        eg[sideToMove] += (board.isKingAttacked() && sideToMove != (board.getSideToMove() == Side.WHITE ? 1 : 0)) ? 1 : 0;
         //System.out.println(mg[sideToMove] + " " + eg[sideToMove]);
         //System.out.println(mg[1 - sideToMove] + " " + eg[1 - sideToMove]);
         int mgScore = mg[sideToMove] - mg[1 - sideToMove];
         int egScore = eg[sideToMove] - eg[1 - sideToMove];
-        double finalScore = (mgScore * gamePhase + egScore * (24 - gamePhase));
+        double finalScore = (mgScore * gamePhase + egScore * (24 - gamePhase)) / 10;
         //System.out.println(finalScore);
         transpositions.put(zobristKey, (int) (-(finalScore - movesPlayed)));
     
