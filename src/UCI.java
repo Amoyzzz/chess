@@ -3,10 +3,24 @@ import backstage.move.Move;
 import java.util.*;
 public class UCI {
     static String ENGINENAME="Athena v1_Fabiano";
+    private static Board board;
 
-    public static void uciCommunication(Board board) {
-        while (true){
-            Scanner input = new Scanner(System.in);
+    public static Board getBoard() {
+        return board;
+    }
+
+    public static void setBoard(Board board) {
+        UCI.board = board;
+    }
+
+    public UCI() {
+        this.board = new Board();
+        Athena athena = new Athena();
+    }
+
+    public void uciCommunication() {
+        Scanner input = new Scanner(System.in);
+        while (true) {
             String inputString = input.nextLine();
             if ("uci".equals(inputString))
             {
@@ -22,50 +36,60 @@ public class UCI {
             }
             else if ("ucinewgame".equals(inputString))
             {
-                inputUCINewGame(board);
+                inputUCINewGame();
             }
             else if (inputString.startsWith("position"))
             {
-                inputPosition(inputString, board);
+                inputPosition(inputString);
             }
             else if ("go".equals(inputString))
             {
-                inputGo(board);
+                inputGo();
+            }
+            else if (inputString.startsWith("move")){
+                incomingMove(inputString);
             }
         }
     }
-    public static void inputUCI() {
-        System.out.println("Engine: "+ENGINENAME);
+    private static void inputUCI() {
+        System.out.println("Engine: " + ENGINENAME);
         //options go here
         System.out.println("uciok");
     }
-    public static void inputSetOption(String inputString) {
+    private static void inputSetOption(String inputString) {
         //set options
     }
-    public static void inputIsReady() {
+    private static void inputIsReady() {
          System.out.println("readyok");
     }
-    public static void inputUCINewGame(Board board) {
+    private static void inputUCINewGame() {
         board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
-    public static void inputPosition(String input, Board board) {
-        input=input.substring(9).concat(" ");
+    private static void inputPosition(String input) {
+        input = input.substring(9).concat(" ");
         if (input.contains("startpos ")) {
             input=input.substring(9);
             board.loadFromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        }
-        else if (input.contains("fen")) {
+        } else if (input.contains("fen")) {
             input=input.substring(4);
             board.loadFromFen(input);
+            System.out.println(board);
         }
         if (input.contains("moves")) {
             input=input.substring(input.indexOf("moves")+6);
             //make each of the moves
         }
     }
-    public static void inputGo(Board board) {
+    private static void inputGo() {
         //search for best move
         Move bestMove = Athena.bestMove(board);
+        board.doMove(bestMove);
         System.out.println(bestMove.toString());
+    }
+    private static void incomingMove(String input){
+        input = input.substring(5);
+        board.doMove(input.substring(2, 4));
+
+        //move e4e5
     }
 }

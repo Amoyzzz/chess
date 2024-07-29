@@ -8,11 +8,10 @@ import backstage.move.Move;
 import backstage.pgn.PgnIterator;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -23,14 +22,26 @@ public class Athena {
     private static final double INFINITY = 1000000.0;
     static Move bestMove;
     private static Move tempBestMove;
-    private static final int DEPTH_USED = 8;
+    private static final int DEPTH_USED = 24;
 
     private static int tcounter = 0;
     
     private static final HashMap<Long, Double> transpositions = new HashMap<>();
-    //private static List<Move> bestMovesMap = new List<>();
-    
-    
+    private static List<Move> bestMovesRunning = new ArrayList<>();
+    // private static Move currentMovePlayed;
+    // public Athena(String fen) {
+    //     initTables();
+    //     Board board = new Board();
+
+    //     board.loadFromFen(fen);
+    // }
+    // public Athena() {
+    //     initTables();
+    //     Board board = new Board();
+    // }
+    // public static void playMove(Move move){
+    //     currentMovePlayed = move;
+    // }
     public static void playSound(String soundFile) {
         try {
             File file = new File(soundFile);
@@ -56,7 +67,6 @@ public class Athena {
         long elapsed = System.currentTimeMillis() - startTime;
         System.out.println("Time: " + elapsed);
         System.out.println("Transpositions: " + tcounter);
-        board.doMove(bestMove);
         return bestMove;
     }
 
@@ -82,14 +92,18 @@ public class Athena {
     
     public static double search(Board board, int depth) {
         double maxEval = -INFINITY;
-        int count = 0;
-        List<Move> moves = board.legalMoves();
-        
-        for (Move move : moves) {
-            move.setScore(MoveValue(board, move));
+        int count = 0; 
+        List<Move> moves;
+        if (depth == 1){
+            moves = board.legalMoves();
+            for (Move move : moves) {
+                move.setScore(MoveValue(board, move));
+            }
+            OrderMovesGUESS(moves);
         }
-        
-        OrderMovesGUESS(moves);
+        else {
+            moves = bestMovesRunning;
+        }
 
         
         for (Move move : moves) {
@@ -108,7 +122,9 @@ public class Athena {
                 tempBestMove = move;
             }
         }
-        
+        bestMovesRunning.clear();
+        OrderMovesReal(moves);
+        bestMovesRunning = moves;
         return maxEval;
     }
 
@@ -338,10 +354,7 @@ public class Athena {
             moveScoreGuess = 10 * capturePieceType - movePieceType;
         } else if (capturePieceType < movePieceType) {
             // Capturing a less valuable piece
-            moveScoreGuess = 5;
-        } else if (capturePieceType == movePieceType){
-            // Capturing an equally valuable piece
-            moveScoreGuess = 7;
+            moveScoreGuess = 10 * movePieceType - capturePieceType;
         }
 
         // Promoting a pawn is likely to be good
