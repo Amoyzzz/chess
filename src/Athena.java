@@ -99,11 +99,11 @@ public class Athena {
         Move bestMove = null;
         double maxScore = -INFINITY;
         List<Move> moves = board.legalMoves();
-            for (Move move : moves) {
-                move.setScore(MoveValue(board, move));
-            }
+        // for (Move move : moves) {
+        //     move.setScore(MoveValue(board, move));
+        // }
 
-            OrderMovesGUESS(moves);
+        // OrderMovesGUESS(moves);
         for (Move move : moves) {
 
             board.doMove(move);
@@ -310,8 +310,8 @@ public class Athena {
             beginSquare++;
             int mgScore = mgValue(pieceType);
             int egScore = egValue(pieceType);
-            mg[color] += mgScore * 2 + mgPestoTable[color][pieceType][sq] * 4;
-            eg[color] += egScore * 2 + egPestoTable[color][pieceType][sq] * 3;
+            mg[color] += mgScore * 5 + mgPestoTable[color][pieceType][sq] * 1;
+            eg[color] += egScore * 5 + egPestoTable[color][pieceType][sq] * 1;
             gamePhase += gamePhaseInc(pieceType); // Update gamePhase here
     
             if (piece.getPieceType() == PieceType.KING && color == sideToMove) {
@@ -322,8 +322,8 @@ public class Athena {
             }
         }
 
-        mg[sideToMove] += MoveValue(board, testMove);
-        eg[sideToMove] += MoveValue(board, testMove);
+        //mg[sideToMove] += MoveValue(board, testMove);
+       // eg[sideToMove] += MoveValue(board, testMove);
         eg[sideToMove] += forceKingToCornerEndgameEval(friendlyKingSquare, opponentKingSquare, gamePhase);
         eg[sideToMove] += (board.isKingAttacked() && sideToMove != (board.getSideToMove() == Side.WHITE ? 1 : 0)) ? 10 : 0;
         //System.out.println(mg[sideToMove] + " " + eg[sideToMove]);
