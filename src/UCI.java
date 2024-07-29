@@ -3,9 +3,11 @@ import backstage.move.Move;
 import java.util.*;
 public class UCI {
     static String ENGINENAME="Athena v1_Fabiano";
-
+    static Athena a;
+    public UCI(){
+        uciCommunication();
+    }
     public static void uciCommunication() {
-        Athena a = new Athena();
         while (true){
             Scanner input = new Scanner(System.in);
             String inputString = input.nextLine();
@@ -29,14 +31,18 @@ public class UCI {
             {
                 inputPosition(inputString, a.getBoard());
             }
-            else if ("go".equals(inputString))
+            else if (inputString.contains("go"))
             {
                 inputGo(a.getBoard());
+            }
+            else if("quit".equals(inputString)){
+                System.exit(0);
             }
         }
     }
     public static void inputUCI() {
-        System.out.println("Engine: "+ENGINENAME);
+        System.out.println("id name "+ENGINENAME);
+        System.out.println("id author RedHatHackers");
         //options go here
         System.out.println("uciok");
     }
@@ -44,6 +50,7 @@ public class UCI {
         //set options
     }
     public static void inputIsReady() {
+         a = new Athena();
          System.out.println("readyok");
     }
     public static void inputUCINewGame(Board board) {
@@ -61,6 +68,7 @@ public class UCI {
         }
         if (input.startsWith("moves")) {
             input=input.substring(input.indexOf("moves")+6);
+            input = input.substring(0, input.indexOf(" "));
             board.doMove(input);
         }
     }
@@ -68,6 +76,6 @@ public class UCI {
         //search for best move
         Move bestMove = Athena.bestMove(board);
         board.doMove(bestMove);
-        System.out.println("bestmove " + bestMove.toString());
+        System.out.println(bestMove.toString());
     }
 }
